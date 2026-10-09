@@ -1,0 +1,3 @@
+﻿name,dammage,hitStart,hitEnd,scale,capTopX,capTorY,capTopZ,capDownX,capDownY,capDownZ,capRadius,offPosX,offPosY,offPosZ,offRotX,offRotY,offRotZ
+,,,,,,,,,,,,,,,,,
+Sword,1,0.3,0.6,1,0,80,0,0,30,0,20,0,0,0,0,0,0

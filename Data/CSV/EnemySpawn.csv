@@ -1,0 +1,6 @@
+﻿type, x, y, z, rotY, speedMove, detectRange, loseRange, stopRange,hp
+,,,,,,,,,
+Knight,0,-30,1000,180,,,,,3
+Knight,3000,-30,1200,90,1.5,600,900,80,3
+Knight,-3000,-30,1200,0,2,800,1100,,3
+Knight,600,-30,800,270, ,400,,,3
