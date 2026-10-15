@@ -6,7 +6,7 @@
 class Stage;
 class SkyDome;
 class Player;
-class WeaponBase;
+class WeaponManager;
 class EnemyManager;
 class EffectManager;
 
@@ -37,7 +37,7 @@ private:
 	std::unique_ptr<Player> player_;
 
 	// •Ší
-	std::unique_ptr<WeaponBase> weapon_;
+	std::unique_ptr<WeaponManager> weaponManager_;
 
 	// “G
 	std::unique_ptr<EnemyManager> enemyManager_;
@@ -47,4 +47,7 @@ private:
 
 	// “–‚½‚è”»’è(•Ší‚Æ“G)
 	void CollisionWeaponEnemy(void);
+
+	// ’Ç‰Á: “–‚½‚è”»’è(“G‚Ì•Ší‚ÆƒvƒŒƒCƒ„[)
+	void CollisionEnemyWeaponPlayer(void);
 };

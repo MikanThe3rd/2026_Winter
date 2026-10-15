@@ -15,4 +15,6 @@ struct EnemySpawnData
 	float loseRange = 900.0f;                     // 追従終了距離
 	float stopRange = 80.0f;                      // 近付く限界距離
 	int hp = 3;                                   // ヒットポイント
+
+	std::string weapon = "";           
 };

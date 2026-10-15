@@ -5,6 +5,7 @@
 #include <functional>
 #include <DxLib.h>
 #include "ActorBase.h"
+#include "PlayerParam.h"
 
 class AnimationController;
 class Collider;
@@ -15,18 +16,15 @@ class Player : public ActorBase
 
 public:
 
-	// スピード
-	static constexpr float SPEED_MOVE = 2.0f;
-	static constexpr float SPEED_RUN = 10.0f;
-
-	// 回転完了までの時間
-	static constexpr float TIME_ROT = 1.0f;
-
-	// ジャンプ力
-	static constexpr float POW_JUMP = 80.0f;
+	// 移動速度・回転時間・ジャンプ力・HPは CSV(PlayerParam)から設定される
 
 	// ジャンプ受付時間
 	static constexpr float TIME_JUMP_IN = 0.5f;
+
+	// HPバー(プレイヤーの頭上に追従)
+	static constexpr int HP_BAR_WIDTH = 80;
+	static constexpr int HP_BAR_HEIGHT = 8;
+	static constexpr float HP_BAR_OFFSET_Y = 190.0f;   // 足元から頭上までの高さ
 
 	// 状態
 	enum class STATE
@@ -34,6 +32,7 @@ public:
 		NONE,
 		PLAY,
 		ATTACK,
+		BLOODSUCKING,
 	};
 
 	// アニメーション種別
@@ -44,6 +43,7 @@ public:
 		FAST_RUN,
 		JUMP,
 		ATTACK,
+		CLAW,
 	};
 
 	// コンストラクタ
@@ -64,10 +64,21 @@ public:
 	const Capsule& GetCapsule(void) const;
 
 	// 攻撃中か
-	bool IsAttacking(void) const { return state_ == STATE::ATTACK; }
+	bool IsAttacking(void) const { return state_ == STATE::ATTACK || state_ == STATE::BLOODSUCKING; }
 
 	// 攻撃開始からの経過時間(秒)
 	float GetAttackTime(void) const { return stepAttack_; }
+
+	// HP
+	int GetHp(void) const { return hp_; }
+	int GetHpMax(void) const { return hpMax_; }
+	bool IsAlive(void) const { return hp_ > 0; }
+
+	// ダメージを受ける
+	void Damage(int damage);
+
+	// HPバーの描画(頭上に追従)。3D描画の後に呼ぶ
+	void DrawHud(void);
 
 private:
 
@@ -118,6 +129,13 @@ private:
 	// 攻撃開始からの経過時間
 	float stepAttack_;
 
+	// ステータス(CSV から読み込み)
+	PlayerParam playerParam_;
+
+	// HP
+	int hp_;
+	int hpMax_;
+
 	void InitAnimation(void);
 
 	// 状態遷移
@@ -125,11 +143,13 @@ private:
 	void ChangeStateNone(void);
 	void ChangeStatePlay(void);
 	void ChangeStateAttack(void);
+	void ChangeStateBloodsucking(void);
 
 	// 更新ステップ
 	void UpdateNone(void);
 	void UpdatePlay(void);
 	void UpdateAttack(void);
+	void UpdateBloodsucking(void);
 	
 	// 描画系
 	void DrawShadow(void);
@@ -138,6 +158,7 @@ private:
 	void ProcessMove(void);
 	void ProcessJump(void);
 	void ProcessAttack(void);
+	void ProcessAttackBloodsucking(void);
 
 	// 回転
 	void SetGoalRotate(double rotRad);

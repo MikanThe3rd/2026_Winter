@@ -1,0 +1,7 @@
+# プレイヤーのステータス
+# 形式: 項目名, 値
+hp,        10
+speedMove, 2.0
+speedRun,  10.0
+timeRot,   1.0
+jumpPow,   80.0

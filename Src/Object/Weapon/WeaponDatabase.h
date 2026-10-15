@@ -8,7 +8,7 @@ class WeaponDatabase
 public:
 
 	// 武器設定ファイル(実行時のカレントディレクトリからの相対パス)
-	static constexpr const char* FILE_PATH = "Data/Weapon/Weapon.csv";
+	static constexpr const char* FILE_PATH = "Data/CSV/Weapon.csv";
 
 	static WeaponDatabase& GetInstance(void);
 

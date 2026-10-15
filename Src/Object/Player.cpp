@@ -36,6 +36,9 @@ Player::Player(void)
 
 	imgShadow_ = -1;
 
+	hp_ = 1;
+	hpMax_ = 1;
+
 	stepAttack_ = 0.0f;
 
 	capsule_ = nullptr;
@@ -44,6 +47,7 @@ Player::Player(void)
 	stateChanges_.emplace(STATE::NONE, std::bind(&Player::ChangeStateNone, this));
 	stateChanges_.emplace(STATE::PLAY, std::bind(&Player::ChangeStatePlay, this));
 	stateChanges_.emplace(STATE::ATTACK, std::bind(&Player::ChangeStateAttack, this));
+	stateChanges_.emplace(STATE::BLOODSUCKING, std::bind(&Player::ChangeStateBloodsucking, this));
 }
 
 Player::~Player(void)
@@ -52,6 +56,10 @@ Player::~Player(void)
 
 void Player::Init(void)
 {
+	// CSV からステータスを読み込む
+	playerParam_ = PlayerParam::Load();
+	hp_ = hpMax_ = playerParam_.hp;
+
 
 	// モデルの基本設定
 	transform_.SetModel(resMng_.LoadModelDuplicate(
@@ -125,6 +133,64 @@ const Capsule& Player::GetCapsule(void) const
 	return *capsule_;
 }
 
+void Player::Damage(int damage)
+{
+	// 死亡済みなら何もしない
+	if (!IsAlive())
+	{
+		return;
+	}
+
+	// 0未満にならないようにする
+	// (std::max は windows.h の max マクロと衝突するため使わない)
+	hp_ -= damage;
+	if (hp_ < 0)
+	{
+		hp_ = 0;
+	}
+}
+
+void Player::DrawHud(void)
+{
+	if (hpMax_ <= 0)
+	{
+		return;
+	}
+
+	// 頭上のワールド座標 → 画面座標
+	VECTOR worldPos = VAdd(transform_.pos,
+		VScale(AsoUtility::DIR_U, HP_BAR_OFFSET_Y));
+	VECTOR sp = ConvWorldPosToScreenPos(worldPos);
+
+	// カメラの後ろや描画範囲外なら描かない
+	if (sp.z <= 0.0f || sp.z >= 1.0f)
+	{
+		return;
+	}
+
+	int w = HP_BAR_WIDTH;
+	int h = HP_BAR_HEIGHT;
+	int x = (int)sp.x - w / 2;
+	int y = (int)sp.y;
+
+	// 残量に応じて色を変える
+	float rate = (float)hp_ / (float)hpMax_;
+	int color = GetColor(60, 220, 60);
+	if (rate <= 0.25f)
+	{
+		color = GetColor(230, 50, 50);
+	}
+	else if (rate <= 0.5f)
+	{
+		color = GetColor(240, 200, 40);
+	}
+
+	// 枠 → 背景 → 残量
+	DrawBox(x - 1, y - 1, x + w + 1, y + h + 1, GetColor(0, 0, 0), TRUE);
+	DrawBox(x, y, x + w, y + h, GetColor(70, 70, 70), TRUE);
+	DrawBox(x, y, x + (int)(w * rate), y + h, color, TRUE);
+}
+
 void Player::InitAnimation(void)
 {
 
@@ -136,6 +202,7 @@ void Player::InitAnimation(void)
 	animationController_->Add((int)ANIM_TYPE::FAST_RUN, path + "Run1.mv1", 20.0f);
 	animationController_->Add((int)ANIM_TYPE::JUMP, path + "Jump.mv1", 60.0f);
 	animationController_->Add((int)ANIM_TYPE::ATTACK, path + "Attack.mv1", 60.0f);
+	animationController_->Add((int)ANIM_TYPE::CLAW, path + "AttackClaw.mv1", 60.0f);
 
 	animationController_->Play((int)ANIM_TYPE::IDLE);
 
@@ -176,6 +243,20 @@ void Player::ChangeStateAttack(void)
 	animationController_->Play((int)ANIM_TYPE::ATTACK, false, 0.0f, 60.0f);
 }
 
+void Player::ChangeStateBloodsucking(void)
+{
+	stateUpdate_ = std::bind(&Player::UpdateBloodsucking, this);
+
+	// 攻撃経過時間をリセット
+	stepAttack_ = 0.0f;
+
+	// 攻撃中は移動しない
+	movePow_ = AsoUtility::VECTOR_ZERO;
+
+	// アニメーション
+	animationController_->Play((int)ANIM_TYPE::CLAW, false, 0.0f, 60.0f);
+}
+
 void Player::UpdateNone(void)
 {
 }
@@ -191,6 +272,7 @@ void Player::UpdatePlay(void)
 
 	// 攻撃処理
 	ProcessAttack();
+	ProcessAttackBloodsucking();
 
 	// 移動方向に応じた回転
 	Rotate();
@@ -227,9 +309,29 @@ void Player::UpdateAttack(void)
 	}
 }
 
+void Player::UpdateBloodsucking(void)
+{
+	// 攻撃開始からの経過時間
+	stepAttack_ += scnMng_.GetDeltaTime();
+
+	// 攻撃中は入力移動なし(重力と衝突だけ処理する)
+	movePow_ = AsoUtility::VECTOR_ZERO;
+
+	CalcGravityPow();
+	Collision();
+
+	transform_.quaRot = playerRotY_;
+
+	// 攻撃アニメーションが終わったら通常状態へ戻る
+	if (animationController_->GetPlayType() == (int)ANIM_TYPE::CLAW
+		&& animationController_->IsEnd())
+	{
+		ChangeState(STATE::PLAY);
+	}
+}
+
 void Player::DrawShadow(void)
 {
-
 	float PLAYER_SHADOW_HEIGHT = 300.0f;
 	float PLAYER_SHADOW_SIZE = 30.0f;
 
@@ -318,12 +420,10 @@ void Player::DrawShadow(void)
 
 	// Ｚバッファを無効にする
 	SetUseZBuffer3D(FALSE);
-
 }
 
 void Player::ProcessMove(void)
 {
-
 	auto& ins = InputManager::GetInstance();
 
 	// 移動量をゼロ
@@ -368,10 +468,10 @@ void Player::ProcessMove(void)
 	if (!AsoUtility::EqualsVZero(dir) && (isJump_ || IsEndLanding())) {
 
 		// 移動処理
-		speed_ = SPEED_MOVE;
+		speed_ = playerParam_.speedMove;
 		if (ins.IsNew(KEY_INPUT_LSHIFT))
 		{
-			speed_ = SPEED_RUN;
+			speed_ = playerParam_.speedRun;
 		}
 		moveDir_ = dir;
 		movePow_ = VScale(dir, speed_);
@@ -400,7 +500,6 @@ void Player::ProcessMove(void)
 			animationController_->Play((int)ANIM_TYPE::IDLE);
 		}
 	}
-
 }
 
 void Player::ProcessJump(void)
@@ -418,7 +517,7 @@ void Player::ProcessJump(void)
 		isJump_ = true;
 
 		// 初速を1回だけ与える
-		jumpPow_ = VScale(AsoUtility::DIR_U, POW_JUMP);
+		jumpPow_ = VScale(AsoUtility::DIR_U, playerParam_.jumpPow);
 	}
 }
 
@@ -433,6 +532,17 @@ void Player::ProcessAttack(void)
 	}
 }
 
+void Player::ProcessAttackBloodsucking(void)
+{
+	auto& ins = InputManager::GetInstance();
+
+	// 地面にいるときだけ攻撃開始
+	if (ins.IsClickMouseRight() && !isJump_ && IsEndLanding())
+	{
+		ChangeState(STATE::BLOODSUCKING);
+	}
+}
+
 void Player::SetGoalRotate(double rotRad)
 {
 	VECTOR cameraRot = mainCamera.GetAngles();
@@ -444,7 +554,7 @@ void Player::SetGoalRotate(double rotRad)
 	// しきい値
 	if (angleDiff > 0.1)
 	{
-		stepRotTime_ = TIME_ROT;
+		stepRotTime_ = playerParam_.timeRot;
 	}
 
 	goalQuaRot_ = axis;
@@ -457,7 +567,7 @@ void Player::Rotate(void)
 
 	// 回転の球面補間
 	playerRotY_ = Quaternion::Slerp(
-		playerRotY_, goalQuaRot_, (TIME_ROT - stepRotTime_) / TIME_ROT);
+		playerRotY_, goalQuaRot_, (playerParam_.timeRot - stepRotTime_) / playerParam_.timeRot);
 }
 
 void Player::Collision(void)

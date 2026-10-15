@@ -117,6 +117,8 @@ bool EnemyManager::Spawn(const EnemySpawnData& data)
 	}
 	enemy->Init();
 
+	enemy->EquipWeapon(data.weapon);
+
 	enemies_.push_back(std::move(enemy));
 	return true;
 }
@@ -139,8 +141,6 @@ bool EnemyManager::LoadSpawnData(const std::string& path, std::vector<EnemySpawn
 		return false;
 	}
 
-	// 列: type, x, y, z, rotY, speedMove, detectRange, loseRange, stopRange
-	// 5列目以降は省略可(省略時は EnemySpawnData のデフォルト値)
 	std::string line;
 	int lineNo = 0;
 	while (std::getline(ifs, line))
@@ -148,7 +148,6 @@ bool EnemyManager::LoadSpawnData(const std::string& path, std::vector<EnemySpawn
 		lineNo++;
 		line = Trim(line);
 
-		// 空行・コメント行はスキップ
 		if (line.empty() || line[0] == '#')
 		{
 			continue;
@@ -187,6 +186,19 @@ bool EnemyManager::LoadSpawnData(const std::string& path, std::vector<EnemySpawn
 			readOpt(6, d.detectRange);
 			readOpt(7, d.loseRange);
 			readOpt(8, d.stopRange);
+
+			// hp(整数)
+			if (cols.size() > 9 && !cols[9].empty())
+			{
+				d.hp = std::stoi(cols[9]);
+			}
+
+			// 武器名
+			if (cols.size() > 10)
+			{
+				d.weapon = cols[10];
+			}
+
 			out.push_back(d);
 		}
 		catch (const std::exception&)

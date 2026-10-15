@@ -67,3 +67,4 @@ void WeaponBase::OnHit(EnemyBase& enemy)
 {
 	enemy.Damage(param_.damage);
 }
+

@@ -9,7 +9,7 @@ public:
 	Sword(void);
 
 	// デストラクタ
-	~Sword(void);
+	virtual ~Sword(void);
 
 	void Init(void) override;
 	void Update(const Transform& playerTransform) override;

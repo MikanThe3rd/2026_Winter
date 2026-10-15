@@ -32,17 +32,6 @@ void Sword::Draw(void)
 {
 	// モデルの描画
 	MV1DrawModel(transform_.modelId);
-
-#ifdef _DEBUG
-	// カプセルコライダの描画
-	capsule_->Draw();
-
-	// 攻撃判定が有効な間だけ表示(判定区間の調整用)
-	if (IsHitActive())
-	{
-		DrawString(10, 10, "SWORD HIT ACTIVE", 0xff0000);
-	}
-#endif
 }
 
 static Quaternion MatrixToQuaternion(const MATRIX& m)

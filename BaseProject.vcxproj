@@ -19,6 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Object\Weapon\Claw.cpp" />
+    <ClCompile Include="Src\Object\Weapon\EnemyWeapon.cpp" />
+    <ClCompile Include="Src\Object\PlayerParam.cpp" />
     <ClCompile Include="Src\Object\Weapon\WeaponDatabase.cpp" />
     <ClCompile Include="Src\Utility\CSVUtility.cpp" />
     <ClCompile Include="Src\Object\Enemy\EnemyManager.cpp" />
@@ -55,8 +58,13 @@
     <ClCompile Include="Src\Utility\AsoUtility.cpp" />
     <ClCompile Include="Src\Object\Weapon\WeaponBase.cpp" />
     <ClCompile Include="Src\Object\Weapon\Sword.cpp" />
+    <ClCompile Include="Src\Object\Weapon\WeaponManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Object\Weapon\Claw.h" />
+    <ClInclude Include="Src\Object\Weapon\EnemyWeaponDatabase.h" />
+    <ClInclude Include="Src\Object\Weapon\EnemyWeapon.h" />
+    <ClInclude Include="Src\Object\PlayerParam.h" />
     <ClInclude Include="Src\Object\Weapon\WeaponDatabase.h" />
     <ClInclude Include="Src\Utility\CSVUtility.h" />
     <ClInclude Include="Src\Object\Enemy\EnemyManager.h" />
@@ -94,6 +102,7 @@
     <ClInclude Include="Src\Utility\AsoUtility.h" />
     <ClInclude Include="Src\Object\Weapon\WeaponBase.h" />
     <ClInclude Include="Src\Object\Weapon\Sword.h" />
+    <ClInclude Include="Src\Object\Weapon\WeaponManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Src\Shader\Common\Pixel\PixelShader2DHeader.hlsli" />

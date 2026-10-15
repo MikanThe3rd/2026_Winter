@@ -12,15 +12,16 @@
 #include "../Object/Player.h"
 #include "../Object/Planet.h"
 #include "../Object/Weapon/WeaponBase.h"
-#include "../Object/Weapon/Sword.h"
+#include "../Object/Weapon/WeaponManager.h"
 #include "../Object/Enemy/EnemyBase.h"
+#include "../Object/Weapon/EnemyWeapon.h"
 #include "../Object/Enemy/EnemyManager.h"
 #include "GameScene.h"
 
 GameScene::GameScene(void)
 {
 	player_ = nullptr;
-	weapon_ = nullptr;
+	weaponManager_ = nullptr;
 	enemyManager_ = nullptr;
 	skyDome_ = nullptr;
 	stage_ = nullptr;
@@ -38,14 +39,16 @@ void GameScene::Init(void)
 	player_ = std::make_unique<Player>();
 	player_->Init();
 
-	// エネミー
+	// 敵(CSV を読み込み、記載されたエネミーをスポーンさせる)
 	enemyManager_ = std::make_unique<EnemyManager>();
 	enemyManager_->SetTarget(&player_->GetTransform());
 	enemyManager_->Init();
 
-	// 武器
-	weapon_ = std::make_unique<Sword>();
-	weapon_->Init();
+	// 武器(武器を変えるのはここだけ)
+	//weapon_ = std::make_unique<Sword>();
+	weaponManager_ = std::make_unique<WeaponManager>();
+	weaponManager_->Init();
+	weaponManager_->SetDrawAll(true);
 
 	// ステージ
 	stage_ = std::make_unique<Stage>(*player_);
@@ -81,16 +84,27 @@ void GameScene::Update(void)
 
 	stage_->Update();
 
+	int mouse = GetMouseInput();
+	if (mouse & MOUSE_INPUT_LEFT)
+	{
+		weaponManager_->Switch(WeaponManager::TYPE::SWORD);   // 左クリック: 剣
+	}
+	else if (mouse & MOUSE_INPUT_RIGHT)
+	{
+		weaponManager_->Switch(WeaponManager::TYPE::CLAW);    // 右クリック: 爪
+	}
+
 	player_->Update();
 
 	enemyManager_->Update();
 
-	// 武器の位置更新(アニメーション更新後の手のボーンから決まる)
-	weapon_->Update(player_->GetTransform());
-	weapon_->UpdateHit(player_->IsAttacking(), player_->GetAttackTime());
+	weaponManager_->Update(player_->GetTransform(),
+		player_->IsAttacking(), player_->GetAttackTime());
 
 	// 当たり判定
 	CollisionWeaponEnemy();
+
+	CollisionEnemyWeaponPlayer();
 
 	effectManager_->Update();
 }
@@ -99,33 +113,34 @@ void GameScene::Draw(void)
 {
 	// 背景
 	skyDome_->Draw();
+
 	stage_->Draw();
 
 	player_->Draw();
 
-	weapon_->Draw();
+	weaponManager_->Draw();
 
 	enemyManager_->Draw();
 
 	int mainScreen = SceneManager::GetInstance().GetMainScreen();
 
 	effectManager_->Draw(mainScreen);
+
+	player_->DrawHud();
 }
 
 void GameScene::CollisionWeaponEnemy(void)
 {
-	// 判定が無効な間は何もしない
-	if (!weapon_->IsHitActive())
-	{
-		return;
-	}
+	
+	WeaponBase& weapon = weaponManager_->GetActive();
+	if (!weapon.IsHitActive()) return;
+	const Capsule& wc = weapon.GetCapsule();
 
-	const Capsule& wc = weapon_->GetCapsule();
 
 	for (const auto& e : enemyManager_->GetEnemies())
 	{
 		// 死亡済み、または今回の一振りで当て済みならスキップ
-		if (!e->IsAlive() || weapon_->HasHit(e.get()))
+		if (!e->IsAlive() ||weapon.HasHit(e.get()))
 		{
 			continue;
 		}
@@ -137,7 +152,43 @@ void GameScene::CollisionWeaponEnemy(void)
 
 		if (hit)
 		{
-			weapon_->ApplyHit(*e);
+			weapon.ApplyHit(*e);
+		}
+	}
+}
+
+// 追加
+void GameScene::CollisionEnemyWeaponPlayer(void)
+{
+	if (!player_->IsAlive())
+	{
+		return;
+	}
+
+	const Capsule& pc = player_->GetCapsule();
+
+	for (const auto& e : enemyManager_->GetEnemies())
+	{
+		if (!e->IsAlive())
+		{
+			continue;
+		}
+
+		// 武器なしの敵、または判定が出ていない間はスキップ
+		EnemyWeapon* w = e->GetWeapon();
+		if (w == nullptr || !w->IsHitActive())
+		{
+			continue;
+		}
+
+		int hit = HitCheck_Capsule_Capsule(
+			w->GetPosTop(), w->GetPosDown(), w->GetRadius(),
+			pc.GetPosTop(), pc.GetPosDown(), pc.GetRadius());
+
+		if (hit)
+		{
+			player_->Damage(w->GetData().damage);
+			w->MarkHit();   // この一振りでは二度当たらない
 		}
 	}
 }

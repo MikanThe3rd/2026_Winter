@@ -59,6 +59,10 @@ void ResourceManager::Init(void)
 	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "Weapon/Sword.mv1");
 	resourcesMap_.emplace(SRC::SWORD, std::move(res));
 
+	// ’Ü
+	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "Weapon/Claw.mv1");
+	resourcesMap_.emplace(SRC::CLAW, std::move(res));
+
 	// ƒiƒCƒg
 	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "Knight/Knight.mv1");
 	resourcesMap_.emplace(SRC::KNIGHT, std::move(res));

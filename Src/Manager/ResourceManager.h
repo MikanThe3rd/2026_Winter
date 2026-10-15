@@ -19,6 +19,7 @@ public:
 		SKY_DOME,
 		MAIN_PLANET,
 		SWORD,
+		CLAW,
 		KNIGHT,
 	};
 

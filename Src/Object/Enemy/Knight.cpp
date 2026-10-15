@@ -47,10 +47,10 @@ void Knight::Draw(void)
 {
 	EnemyBase::Draw();
 
-#ifdef _DEBUG
-	// 検知範囲(球のワイヤーフレーム)を表示
-	DrawSphere3D(transform_.pos, spawnData_.detectRange, 32, 0x00ff00, 0x00ff00, FALSE);
-#endif
+	//#ifdef _DEBUG
+	//	// 検知範囲(球のワイヤーフレーム)を表示
+	//	DrawSphere3D(transform_.pos, spawnData_.detectRange, 4, 0x00ff00, 0x00ff00, FALSE);
+	//#endif
 }
 
 void Knight::InitAnimation(void)
@@ -59,6 +59,9 @@ void Knight::InitAnimation(void)
 	animationController_ = std::make_unique<AnimationController>(transform_.modelId);
 	animationController_->Add((int)ANIM_TYPE::IDLE, path + "Idle.mv1", 20.0f);
 	animationController_->Add((int)ANIM_TYPE::RUN, path + "Walk.mv1", 20.0f);
+	animationController_->Add((int)ANIM_TYPE::ATTACK, path + "Attack.mv1", 20.0f);
+	animationController_->Add((int)ANIM_TYPE::BACK, path + "Back.mv1", 20.0f);
+	animationController_->Add((int)ANIM_TYPE::STUN, path + "Stun.mv1", 20.0f);
 
 	animationController_->Play((int)ANIM_TYPE::IDLE);
 }
@@ -80,6 +83,7 @@ void Knight::UpdateSearch(void)
 	if (VSize(diff) < spawnData_.detectRange)
 	{
 		ChangeState(STATE::TRACKING);
+		return;     // 変更: 遷移したら IDLE を上書きしない
 	}
 
 	animationController_->Play((int)ANIM_TYPE::IDLE);
@@ -107,9 +111,10 @@ void Knight::UpdateTracking(void)
 		return;
 	}
 
-	// 近すぎる場合は止まる
+	// 近すぎる場合は交戦状態へ(間合い調整・攻撃の抽選は ENGAGE 側で行う)
 	if (dist <= spawnData_.stopRange)
 	{
+		ChangeState(STATE::ENGAGE);
 		return;
 	}
 
@@ -119,8 +124,6 @@ void Knight::UpdateTracking(void)
 	movePow_ = VScale(dir, spawnData_.speedMove);
 
 	// プレイヤーの方向へ徐々に振り向く
-	float yaw = atan2f(dir.x, dir.z);
-	Quaternion goal = Quaternion::AngleAxis((double)yaw, AsoUtility::AXIS_Y);
-	transform_.quaRot = Quaternion::Slerp(transform_.quaRot, goal, ROT_RATE);
+	TurnToDir(dir);
 	animationController_->Play((int)ANIM_TYPE::RUN);
 }
