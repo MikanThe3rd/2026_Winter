@@ -50,4 +50,10 @@ private:
 
 	// 追加: 当たり判定(敵の武器とプレイヤー)
 	void CollisionEnemyWeaponPlayer(void);
+
+	// ゲームクリア判定
+	void CheckGameClear(void);
+
+	// ゲームオーバー判定
+	void CheckGameOver(void);
 };

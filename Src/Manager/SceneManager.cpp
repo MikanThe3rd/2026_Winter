@@ -5,6 +5,8 @@
 #include "../Common/Fader.h"
 #include "../Scene/TitleScene.h"
 #include "../Scene/GameScene.h"
+#include "../Scene/GameOverScene.h"
+#include "../Scene/GameClearScene.h"
 #include "Camera.h"
 #include "ResourceManager.h"
 #include "SceneManager.h"
@@ -224,6 +226,12 @@ void SceneManager::DoChangeScene(SCENE_ID sceneId)
 		break;
 	case SCENE_ID::GAME:
 		scene_ = std::make_unique<GameScene>();
+		break;
+	case SCENE_ID::GAME_OVER:
+		scene_ = std::make_unique<GameOverScene>();
+		break;
+	case SCENE_ID::GAME_CLEAR:
+		scene_ = std::make_unique<GameClearScene>();
 		break;
 	}
 

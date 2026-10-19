@@ -2,6 +2,7 @@
 #include <memory>
 #include "SceneBase.h"
 #include "../Object/Common/Transform.h"
+
 class SceneManager;
 class SkyDome;
 class AnimationController;

@@ -73,12 +73,6 @@ void GameScene::Init(void)
 
 void GameScene::Update(void)
 {
-	// シーン遷移
-	InputManager& ins = InputManager::GetInstance();
-	if (ins.IsTrgDown(KEY_INPUT_RETURN))
-	{
-		SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::TITLE);
-	}
 
 	skyDome_->Update();
 
@@ -106,7 +100,19 @@ void GameScene::Update(void)
 
 	CollisionEnemyWeaponPlayer();
 
+	// ゲームクリア判定
+	CheckGameClear();
+
+	// ゲームオーバー判定
+	CheckGameOver();
+
 	effectManager_->Update();
+
+	InputManager& ins = InputManager::GetInstance();
+	if(ins.IsNew(KEY_INPUT_K))
+	{
+		mainCamera.StartEvent(Camera::EVENT_TYPE::BLOODSUCKING_CLAW, &player_->GetTransform(), 2.0f);
+	}
 }
 
 void GameScene::Draw(void)
@@ -191,4 +197,27 @@ void GameScene::CollisionEnemyWeaponPlayer(void)
 			w->MarkHit();   // この一振りでは二度当たらない
 		}
 	}
+}
+
+void GameScene::CheckGameClear(void)
+{
+	for (const auto& e : enemyManager_->GetEnemies())
+	{
+		if (e->IsAlive())
+		{
+			return;
+		}
+	}
+
+	// ここに来た = 全員死亡 → クリア画面へ
+	SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::GAME_CLEAR);
+}
+
+void GameScene::CheckGameOver(void)
+{
+	if(player_->IsAlive())
+	{
+		return;
+	}
+	SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::GAME_OVER);
 }
