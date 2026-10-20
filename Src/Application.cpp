@@ -63,6 +63,10 @@ void Application::Run(void)
 	auto& inputManager = InputManager::GetInstance();
 	auto& sceneManager = SceneManager::GetInstance();
 
+	// 計測の基準時刻を初期化
+	frameStartTime_ = GetNowHiPerformanceCount();
+	fpsCalcTime_ = frameStartTime_;
+
 	// ゲームループ
 	while (ProcessMessage() == 0 && CheckHitKey(KEY_INPUT_ESCAPE) == 0)
 	{
@@ -72,6 +76,8 @@ void Application::Run(void)
 		sceneManager.Draw();
 
 		ScreenFlip();
+
+		FpsControl();
 	}
 }
 
@@ -107,6 +113,11 @@ Application::Application(void)
 {
 	isInitFail_ = false;
 	isReleaseFail_ = false;
+
+	frameStartTime_ = 0;
+	fpsCount_ = 0;
+	fpsCalcTime_ = 0;
+	fps_ = 0.0f;
 }
 
 void Application::InitEffekseer(void)
@@ -119,4 +130,49 @@ void Application::InitEffekseer(void)
 	SetChangeScreenModeGraphicsSystemResetFlag(FALSE);
 
 	Effekseer_SetGraphicsDeviceLostCallbackFunctions();
+}
+
+void Application::FpsControl(void)
+{
+	// 目標時刻
+	LONGLONG targetTime = frameStartTime_ + FRAME_TIME_US;
+
+	while (true)
+	{
+		LONGLONG remain = targetTime - GetNowHiPerformanceCount();
+		if (remain <= 2000)
+		{
+			break;
+		}
+		Sleep(1);
+	}
+
+	while (GetNowHiPerformanceCount() < targetTime)
+	{
+	}
+
+	frameStartTime_ = targetTime;
+
+	LONGLONG now = GetNowHiPerformanceCount();
+	if (now - frameStartTime_ > FRAME_TIME_US * 2)
+	{
+		frameStartTime_ = now;
+	}
+
+	CalcFps();
+}
+
+void Application::CalcFps(void)
+{
+	fpsCount_++;
+
+	// 1秒ごとにFPSを算出
+	LONGLONG now = GetNowHiPerformanceCount();
+	LONGLONG diff = now - fpsCalcTime_;
+	if (diff >= 1000000)
+	{
+		fps_ = static_cast<float>(fpsCount_) * 1000000.0f / static_cast<float>(diff);
+		fpsCount_ = 0;
+		fpsCalcTime_ = now;
+	}
 }

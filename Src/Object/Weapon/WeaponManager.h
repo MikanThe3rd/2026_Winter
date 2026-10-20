@@ -25,7 +25,7 @@ public:
 	void Init(TYPE first = TYPE::SWORD);
 
 	// attackTime ‚Í Player::GetAttackTime() ‚Ì’l
-	void Update(const Transform& playerTransform, bool isAttacking, float attackTime);
+	void Update(const Transform& playerTransform, bool isAttacking, float attackTime, bool isSpecial = false);
 	void Draw(void);
 
 	// Ø‚è‘Ö‚¦B¬Œ÷‚µ‚½‚ç true

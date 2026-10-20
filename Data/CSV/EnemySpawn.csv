@@ -1,6 +1,6 @@
 ﻿type, x, y, z, rotY, speedMove, detectRange, loseRange, stopRange,hp,Weapon
 ,,,,,,,,,,
 Knight,0,-30,1000,180,2,500,700,100,5,Sword
-Knight,3000,-30,1200,90,1.5,600,900,100,5,Sword
-Knight,-3000,-30,1200,0,2,800,1100,100,5,Sword
+Knight,1000,-30,1200,90,1.5,600,900,100,5,Sword
+Knight,-1000,-30,1200,0,2,800,1100,100,5,Sword
 Knight,600,-30,800,270, ,400,600,100,5,Sword

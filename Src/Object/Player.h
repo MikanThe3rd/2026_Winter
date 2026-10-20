@@ -33,6 +33,7 @@ public:
 		PLAY,
 		ATTACK,
 		BLOODSUCKING,
+		SPECIAL_ATTACK,
 	};
 
 	// アニメーション種別
@@ -44,6 +45,7 @@ public:
 		JUMP,
 		ATTACK,
 		CLAW,
+		SPECIAL_CLAW,
 	};
 
 	// コンストラクタ
@@ -64,7 +66,10 @@ public:
 	const Capsule& GetCapsule(void) const;
 
 	// 攻撃中か
-	bool IsAttacking(void) const { return state_ == STATE::ATTACK || state_ == STATE::BLOODSUCKING; }
+	bool IsAttacking(void) const { return state_ == STATE::ATTACK || state_ == STATE::BLOODSUCKING || state_ == STATE::SPECIAL_ATTACK; }
+
+	// 特殊攻撃中か
+	bool IsSpecialAttacking(void) const { return state_ == STATE::SPECIAL_ATTACK; }
 
 	// 攻撃開始からの経過時間(秒)
 	float GetAttackTime(void) const { return stepAttack_; }
@@ -79,6 +84,13 @@ public:
 
 	// HPバーの描画(頭上に追従)。3D描画の後に呼ぶ
 	void DrawHud(void);
+
+	/// 特殊攻撃の発生可否と、その対象の座標
+	void SetSpecialAttack(bool isSpecial, const VECTOR& targetPos = { 0.0f, 0.0f, 0.0f })
+	{
+		isSpecialAttack_ = isSpecial;
+		specialTargetPos_ = targetPos;
+	}
 
 private:
 
@@ -136,6 +148,12 @@ private:
 	int hp_;
 	int hpMax_;
 
+	//特殊攻撃発生フラグ
+	bool isSpecialAttack_;
+
+	// 特殊攻撃の対象座標
+	VECTOR specialTargetPos_;
+
 	void InitAnimation(void);
 
 	// 状態遷移
@@ -144,12 +162,14 @@ private:
 	void ChangeStatePlay(void);
 	void ChangeStateAttack(void);
 	void ChangeStateBloodsucking(void);
+	void ChangeStateSpecialAttack(void);
 
 	// 更新ステップ
 	void UpdateNone(void);
 	void UpdatePlay(void);
 	void UpdateAttack(void);
 	void UpdateBloodsucking(void);
+	void UpdateSpecialAttack(void);
 	
 	// 描画系
 	void DrawShadow(void);
@@ -174,5 +194,4 @@ private:
 
 	// 着地モーション終了
 	bool IsEndLanding(void);
-
 };

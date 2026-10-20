@@ -21,12 +21,6 @@ void WeaponDatabase::Load(void)
 		return;
 	}
 
-	// 列:
-	//  0 name
-	//  1 damage, 2 hitStart, 3 hitEnd, 4 scale
-	//  5-7 capTop(x,y,z), 8-10 capDown(x,y,z), 11 capRadius
-	//  12-14 offsetPos(x,y,z), 15-17 offsetRot(x,y,z / 度)
-	// 2列目以降は省略・空欄可(WeaponParam のデフォルト値が使われる)
 	const WeaponParam def;
 	for (const auto& c : rows)
 	{
@@ -63,6 +57,10 @@ void WeaponDatabase::Load(void)
 			AsoUtility::Deg2RadF(CsvUtility::ToFloat(c, 15, 0.0f)),
 			AsoUtility::Deg2RadF(CsvUtility::ToFloat(c, 16, 0.0f)),
 			AsoUtility::Deg2RadF(CsvUtility::ToFloat(c, 17, 0.0f)));
+
+		// 特殊攻撃の判定窓(省略時は WeaponParam のデフォルト値)
+		p.specialHitStart = CsvUtility::ToFloat(c, 18, def.specialHitStart);
+		p.specialHitEnd = CsvUtility::ToFloat(c, 19, def.specialHitEnd);
 
 		table_[c[0]] = p;
 	}

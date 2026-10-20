@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <DxLib.h>
 #include "../Common/Quaternion.h"
 class Transform;
@@ -8,38 +8,46 @@ class Camera
 
 public:
 
-	// ƒJƒƒ‰ƒXƒs[ƒh(“x)
+	// ã‚«ãƒ¡ãƒ©ã‚¹ãƒ”ãƒ¼ãƒ‰(åº¦)
 	static constexpr float SPEED = 1.0f;
 
-	// ƒJƒƒ‰ƒNƒŠƒbƒvFNEAR
+	// ã‚«ãƒ¡ãƒ©ã‚¯ãƒªãƒƒãƒ—ï¼šNEAR
 	static constexpr float CAMERA_NEAR = 10.0f;
 
-	// ƒJƒƒ‰ƒNƒŠƒbƒvFNEAR
+	// ã‚«ãƒ¡ãƒ©ã‚¯ãƒªãƒƒãƒ—ï¼šNEAR
 	static constexpr float CAMERA_FAR = 30000.0f;
 
-	// ƒJƒƒ‰‚Ì‰ŠúÀ•W
+	// ã‚«ãƒ¡ãƒ©ã®åˆæœŸåº§æ¨™
 	static constexpr VECTOR DEFAULT_CAMERA_POS = { 0.0f, 100.0f, -500.0f };
 
-	// ’Ç]ˆÊ’u‚©‚çƒJƒƒ‰ˆÊ’u‚Ü‚Å‚Ì‘Š‘ÎÀ•W
+	// è¿½å¾“ä½ç½®ã‹ã‚‰ã‚«ãƒ¡ãƒ©ä½ç½®ã¾ã§ã®ç›¸å¯¾åº§æ¨™
 	static constexpr VECTOR LOCAL_F2C_POS = { 0.0f, 50.0f, -400.0f };
 
-	// ’Ç]ˆÊ’u‚©‚ç’‹“_‚Ü‚Å‚Ì‘Š‘ÎÀ•W
+	// è¿½å¾“ä½ç½®ã‹ã‚‰æ³¨è¦–ç‚¹ã¾ã§ã®ç›¸å¯¾åº§æ¨™
 	static constexpr VECTOR LOCAL_F2T_POS = { 0.0f, 0.0f, 500.0f };
 
-	// ƒJƒƒ‰‚ÌX‰ñ“]ãŒÀ“xŠp
+	// ã‚«ãƒ¡ãƒ©ã®Xå›è»¢ä¸Šé™åº¦è§’
 	static constexpr float LIMIT_X_UP_RAD = 40.0f * (DX_PI_F / 180.0f);
 	static constexpr float LIMIT_X_DW_RAD = 0.0f * (DX_PI_F / 180.0f);
 
-	// ƒ}ƒEƒXŠ´“x
+	// ãƒã‚¦ã‚¹æ„Ÿåº¦
 	static constexpr float MOUSE_SENSITIVITY = 0.003f;
 	
-	// ƒJƒƒ‰ƒ‚[ƒh
+	// ã‚«ãƒ¡ãƒ©ãƒ¢ãƒ¼ãƒ‰
 	enum class MODE
 	{
 		NONE,
 		FIXED_POINT,
 		FOLLOW,
-		SELF_SHOT
+		SELF_SHOT,
+		EVENT
+	};
+
+	// ã‚¤ãƒ™ãƒ³ãƒˆã‚«ãƒ¡ãƒ©ã®ç¨®é¡
+	enum class EVENT_TYPE
+	{
+		NONE,
+		BLOODSUCKING_CLAW,
 	};
 
 	Camera(void);
@@ -50,73 +58,124 @@ public:
 	void SetBeforeDraw(void);
 	void Draw(void);
 
-	// ƒJƒƒ‰ˆÊ’u
+	// ã‚«ãƒ¡ãƒ©ä½ç½®
 	VECTOR GetPos(void) const;
-	// ƒJƒƒ‰‚Ì‘€ìŠp“x
+	// ã‚«ãƒ¡ãƒ©ã®æ“ä½œè§’åº¦
 	VECTOR GetAngles(void) const;
-	// ƒJƒƒ‰‚Ì’‹“_
+	// ã‚«ãƒ¡ãƒ©ã®æ³¨è¦–ç‚¹
 	VECTOR GetTargetPos(void) const;
 
-	// ƒJƒƒ‰Šp“x
+	// ã‚«ãƒ¡ãƒ©è§’åº¦
 	Quaternion GetQuaRot(void) const;
-	// X‰ñ“]‚ğ”²‚¢‚½ƒJƒƒ‰Šp“x
+	// Xå›è»¢ã‚’æŠœã„ãŸã‚«ãƒ¡ãƒ©è§’åº¦
 	Quaternion GetQuaRotOutX(void) const;
 
 
-	// ƒJƒƒ‰‚Ì‘O•û•ûŒü
+	// ã‚«ãƒ¡ãƒ©ã®å‰æ–¹æ–¹å‘
 	VECTOR GetForward(void) const;
 
-	// ƒJƒƒ‰‰ñ“](ƒQ[ƒ€ƒpƒbƒh)
+	// ã‚«ãƒ¡ãƒ©å›è»¢(ã‚²ãƒ¼ãƒ ãƒ‘ãƒƒãƒ‰)
 	void RotGamePad(bool isLimit);
 
-	// ƒJƒƒ‰‰ñ“](ƒ}ƒEƒX)
+	// ã‚«ãƒ¡ãƒ©å›è»¢(ãƒã‚¦ã‚¹)
 	void RotMouse(bool isLimit);
 
-	// ƒJƒƒ‰ƒ‚[ƒh‚Ì•ÏX
+	// ã‚«ãƒ¡ãƒ©ãƒ¢ãƒ¼ãƒ‰ã®å¤‰æ›´
 	void ChangeMode(MODE mode);
 
-	// ’Ç]‘ÎÛ‚Ìİ’è
+	// è¿½å¾“å¯¾è±¡ã®è¨­å®š
 	void SetFollow(const Transform* follow);
+
+	// ã‚¤ãƒ™ãƒ³ãƒˆã‚«ãƒ¡ãƒ©é–‹å§‹/çµ‚äº†
+	void StartEvent(EVENT_TYPE type, const Transform* target, float duration);
+	void EndEvent(void);
+	bool IsEventPlaying(void) const;
 
 private:
 
-	// ƒJƒƒ‰‚ª’Ç]‘ÎÛ‚Æ‚·‚éTransform
+	// ã‚«ãƒ¡ãƒ©ãŒè¿½å¾“å¯¾è±¡ã¨ã™ã‚‹Transform
 	const Transform* followTransform_;
 
-	// ƒJƒƒ‰ƒ‚[ƒh
+	// ã‚«ãƒ¡ãƒ©ãƒ¢ãƒ¼ãƒ‰
 	MODE mode_;
 
-	// ƒJƒƒ‰‚ÌˆÊ’u
+	// ã‚«ãƒ¡ãƒ©ã®ä½ç½®
 	VECTOR pos_;
 
-	// ƒJƒƒ‰Šp“x(rad)
+	// ã‚«ãƒ¡ãƒ©è§’åº¦(rad)
 	VECTOR angles_;
 
-	// X²‰ñ“]‚ª–³‚¢Šp“x
+	// Xè»¸å›è»¢ãŒç„¡ã„è§’åº¦
 	Quaternion rotOutX_;
 
-	// ƒJƒƒ‰Šp“x
+	// ã‚«ãƒ¡ãƒ©è§’åº¦
 	Quaternion rot_;
 
-	// ’‹“_
+	// æ³¨è¦–ç‚¹
 	VECTOR targetPos_;
 
-	// ƒJƒƒ‰‚Ìã•ûŒü
+	// ã‚«ãƒ¡ãƒ©ã®ä¸Šæ–¹å‘
 	VECTOR cameraUp_;
 
-	// ƒJƒƒ‰‚ğ‰ŠúˆÊ’u‚É–ß‚·
+	// ã‚¤ãƒ™ãƒ³ãƒˆç”¨
+	EVENT_TYPE eventType_;
+	const Transform* eventTarget_;   
+	float eventDuration_;            
+	float eventTimer_;    
+	int headFrameIdx_;
+
+	// å¾©å¸°ç”¨
+	MODE prevMode_;
+	VECTOR prevAngles_;
+
+	// æˆ»ã‚Šãƒ–ãƒ¬ãƒ³ãƒ‰ç”¨
+	bool isBlendBack_;
+	float blendTimer_;
+	VECTOR blendStartPos_;
+	VECTOR blendStartTarget_;
+	static constexpr float BLEND_BACK_TIME = 0.4f;
+
+	// ã‚«ãƒ¡ãƒ©ã‚’åˆæœŸä½ç½®ã«æˆ»ã™
 	void SetDefault(void);
 
-	// ’Ç]‘ÎÛ‚Æ‚ÌˆÊ’u“¯Šú‚ğæ‚é
+	// è¿½å¾“å¯¾è±¡ã¨ã®ä½ç½®åŒæœŸã‚’å–ã‚‹
 	void SyncFollow(void);
 
-	// ƒJƒƒ‰‘€ì
+	// ã‚«ãƒ¡ãƒ©æ“ä½œ
 	void ProcessRot(bool isLimit);
 
-	// ƒ‚[ƒh•ÊXVƒXƒeƒbƒv
+	// ãƒ¢ãƒ¼ãƒ‰åˆ¥æ›´æ–°ã‚¹ãƒ†ãƒƒãƒ—
 	void SetBeforeDrawFixedPoint(void);
 	void SetBeforeDrawFollow(void);
 	void SetBeforeDrawSelfShot(void);
 
+	// ã‚¤ãƒ™ãƒ³ãƒˆã‚«ãƒ¡ãƒ©ã®æ›´æ–°
+	void SetBeforeDrawEvent(void);
+	void UpdateSpecialMove(float t);
+
+	// é¡”ã®ä½ç½®ã‚’å–å¾—ã™ã‚‹
+	VECTOR GetFacePos(void) const;
+
+	// å¿…æ®ºæŠ€ã‚«ãƒ¡ãƒ©ã®èª¿æ•´ç”¨å®šæ•°
+	static constexpr float SP_FACE_OFFSET_Y = 12.0f;  // é ­ãƒœãƒ¼ãƒ³ã‹ã‚‰é¡”ã®ä¸­å¿ƒã¾ã§ã®é«˜ã•(è¦èª¿æ•´)
+	static constexpr float SP_FACE_HEIGHT = 160.0f; // é ­ãƒœãƒ¼ãƒ³ãŒå–ã‚Œãªã„æ™‚ã®è¶³å…ƒã‹ã‚‰ã®é«˜ã•
+	static constexpr float SP_FRONT_ANGLE = 25.0f;  // é¡”ã‚¢ãƒƒãƒ—æ™‚ã®è§’åº¦(åº¦)ã€‚0ãŒçœŸæ­£é¢
+	static constexpr float SP_BACK_ANGLE = 145.0f; // çªãå‡ºã—æ™‚ã®è§’åº¦(åº¦)ã€‚180ãŒçœŸå¾Œã‚
+	static constexpr float SP_DIST_START = 300.0f; // é–‹å§‹è·é›¢
+	static constexpr float SP_DIST_CLOSE = 110.0f; // é¡”ã‚¢ãƒƒãƒ—è·é›¢
+	static constexpr float SP_DIST_END = 320.0f; // çµ‚äº†è·é›¢
+	static constexpr float SP_HEIGHT_START = 60.0f;  // å¯„ã‚Šé–‹å§‹æ™‚ã®é«˜ã•(é¡”ä¸­å¿ƒåŸºæº–)
+	static constexpr float SP_HEIGHT_CLOSE = 5.0f;  // é¡”ã‚¢ãƒƒãƒ—æ™‚ã®é«˜ã•(å¤§ãã„ã»ã©è¦‹ä¸‹ã‚ã—)
+	static constexpr float SP_HEIGHT_END = -90.0f; // å¾Œã‚ä¸‹ã®é«˜ã•
+	static constexpr float SP_TARGET_UP_END = 40.0f;  // çµ‚äº†æ™‚ã€æ³¨è¦–ç‚¹ã‚’ä¸Šã’ã‚‹é‡
+
+	// ---- ã‚¿ã‚¤ãƒŸãƒ³ã‚°(SpecialClaw.fbx: 74ãƒ•ãƒ¬ãƒ¼ãƒ /30fps = ç´„2.47ç§’ ã‚’ 0ã€œ1 ã«æ­£è¦åŒ–)----
+	static constexpr float SP_CLOSE_END = 0.17f;    // â‘ ã®çµ‚äº†(æ‰‹ã‚’å¼•ããã‚‹ f13)
+	static constexpr float SP_ORBIT_START = 0.27f;    // â‘¢ã®é–‹å§‹(çªãå‡ºã—é–‹å§‹ f20)
+	static constexpr float SP_ORBIT_END = 0.41f;    // â‘¢ã®çµ‚äº†(çªãå‡ºã—å®Œäº† f30)
+
+	// ãƒ˜ãƒ«ãƒ‘ãƒ¼
+	static float SmoothStep(float t);
+	VECTOR OrbitLocalPos(float angleDeg, float dist, float height) const;
 };
 

@@ -25,6 +25,8 @@ struct WeaponParam
 	int damage = 1;                              // ダメージ
 	float hitStart = 0.3f;                       // 判定開始(攻撃開始からの秒数)
 	float hitEnd = 0.6f;                         // 判定終了
+	float specialHitStart = 0.3f;                // 特殊攻撃の判定開始
+	float specialHitEnd = 0.8f;                  // 特殊攻撃の判定終了
 	VECTOR scale = { 1.0f, 1.0f, 1.0f };         // モデルの大きさ
 	VECTOR capTop = { 0.0f, 80.0f, 0.0f };       // カプセル上端(ローカル)
 	VECTOR capDown = { 0.0f, 30.0f, 0.0f };      // カプセル下端(ローカル)
@@ -55,7 +57,7 @@ public:
 	void ClearCollider(void);
 
 	// 攻撃状態を受け取り、判定の有効/無効を更新する
-	void UpdateHit(bool isAttacking, float attackTime);
+	void UpdateHit(bool isAttacking, float attackTime, bool isSpecial = false);
 
 	// 今、攻撃判定が有効か
 	bool IsHitActive(void) const { return hitActive_; }

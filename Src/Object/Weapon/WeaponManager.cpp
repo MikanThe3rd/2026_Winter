@@ -43,7 +43,7 @@ void WeaponManager::Init(TYPE first)
 	active_ = static_cast<int>(first);
 }
 
-void WeaponManager::Update(const Transform& playerTransform, bool isAttacking, float attackTime)
+void WeaponManager::Update(const Transform& playerTransform, bool isAttacking, float attackTime, bool isSpecial)
 {
 	isAttacking_ = isAttacking;
 
@@ -58,7 +58,9 @@ void WeaponManager::Update(const Transform& playerTransform, bool isAttacking, f
 		}
 
 		// ‘•”õ’†‚Ì•ŠíˆÈŠO‚Í”»’è‚ðí‚É–³Œø‚É‚·‚é
-		weapons_[i]->UpdateHit(isActive && isAttacking, isActive ? attackTime : 0.0f);
+		weapons_[i]->UpdateHit(isActive && isAttacking,
+			isActive ? attackTime : 0.0f,
+			isActive && isSpecial);
 	}
 }
 

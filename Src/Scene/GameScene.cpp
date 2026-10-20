@@ -88,12 +88,19 @@ void GameScene::Update(void)
 		weaponManager_->Switch(WeaponManager::TYPE::CLAW);    // 右クリック: 爪
 	}
 
+	// 特殊攻撃の発生イベント
+	SpecialAttackEvent();
+
 	player_->Update();
+
+	// 特殊攻撃の方向を更新(カメラ演出用)
+	UpdateSpecialAttackDirection();
 
 	enemyManager_->Update();
 
 	weaponManager_->Update(player_->GetTransform(),
-		player_->IsAttacking(), player_->GetAttackTime());
+		player_->IsAttacking(), player_->GetAttackTime(),
+		player_->IsSpecialAttacking());
 
 	// 当たり判定
 	CollisionWeaponEnemy();
@@ -107,12 +114,6 @@ void GameScene::Update(void)
 	CheckGameOver();
 
 	effectManager_->Update();
-
-	InputManager& ins = InputManager::GetInstance();
-	if(ins.IsNew(KEY_INPUT_K))
-	{
-		mainCamera.StartEvent(Camera::EVENT_TYPE::BLOODSUCKING_CLAW, &player_->GetTransform(), 2.0f);
-	}
 }
 
 void GameScene::Draw(void)
@@ -133,6 +134,14 @@ void GameScene::Draw(void)
 	effectManager_->Draw(mainScreen);
 
 	player_->DrawHud();
+
+	if (player_->IsSpecialAttacking())
+	{
+		DrawFormatString(20, 20, GetColor(255, 255, 255),
+			"special t=%.2f hit=%d",
+			player_->GetAttackTime(),
+			weaponManager_->GetActive().IsHitActive() ? 1 : 0);
+	}
 }
 
 void GameScene::CollisionWeaponEnemy(void)
@@ -140,13 +149,29 @@ void GameScene::CollisionWeaponEnemy(void)
 	
 	WeaponBase& weapon = weaponManager_->GetActive();
 	if (!weapon.IsHitActive()) return;
-	const Capsule& wc = weapon.GetCapsule();
 
+	// 特殊攻撃中は、スタン中の対象にだけ当てる(カプセルの接触は見ない)
+	if (player_->IsSpecialAttacking())
+	{
+		for (const auto& e : enemyManager_->GetEnemies())
+		{
+			if (e.get() == specialTarget_
+				&& e->IsAlive()
+				&& !weapon.HasHit(e.get()))
+			{
+				weapon.ApplyHit(*e);
+			}
+		}
+		return;
+	}
+
+	// 通常攻撃: 武器カプセルと敵カプセルの接触で判定
+	const Capsule& wc = weapon.GetCapsule();
 
 	for (const auto& e : enemyManager_->GetEnemies())
 	{
 		// 死亡済み、または今回の一振りで当て済みならスキップ
-		if (!e->IsAlive() ||weapon.HasHit(e.get()))
+		if (!e->IsAlive() || weapon.HasHit(e.get()))
 		{
 			continue;
 		}
@@ -220,4 +245,51 @@ void GameScene::CheckGameOver(void)
 		return;
 	}
 	SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::GAME_OVER);
+}
+
+void GameScene::SpecialAttackEvent(void)
+{
+	// 特殊攻撃中は対象を固定する(途中で別の敵に変わらないように)
+	if (player_->IsSpecialAttacking())
+	{
+		return;
+	}
+	specialTarget_ = nullptr;
+
+	// プレイヤーに最も近いスタン中の敵を探す
+	const VECTOR playerPos = player_->GetTransform().pos;
+	float nearest = SPECIAL_ATTACK_RANGE;
+	VECTOR targetPos = playerPos;
+
+	for (const auto& e : enemyManager_->GetEnemies())
+	{
+		if (!e->IsAlive() || !e->IsStunned())
+		{
+			continue;
+		}
+
+		VECTOR pos = e->GetCapsule().GetPosDown();
+		float dist = VSize(VSub(pos, playerPos));
+		if (dist <= nearest)
+		{
+			nearest = dist;
+			specialTarget_ = e.get();
+			targetPos = pos;
+		}
+	}
+
+	// 毎フレーム更新するので、スタンが解けたり離れたりすれば自動でfalseに戻る
+	player_->SetSpecialAttack(specialTarget_ != nullptr, targetPos);
+}
+
+void GameScene::UpdateSpecialAttackDirection(void)
+{
+	// 特殊攻撃に入った瞬間だけ演出を開始する
+	const bool isSpecial = player_->IsSpecialAttacking();
+	if (isSpecial && !wasSpecialAttacking_)
+	{
+		mainCamera.StartEvent(Camera::EVENT_TYPE::BLOODSUCKING_CLAW,
+			&player_->GetTransform(), SPECIAL_CAMERA_TIME);
+	}
+	wasSpecialAttacking_ = isSpecial;
 }

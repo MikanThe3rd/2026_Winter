@@ -1,4 +1,4 @@
-﻿name,dammage,hitStart,hitEnd,scale,capTopX,capTorY,capTopZ,capDownX,capDownY,capDownZ,capRadius,offPosX,offPosY,offPosZ,offRotX,offRotY,offRotZ
-,,,,,,,,,,,,,,,,,
-Sword,1,0.3,0.6,1,0,80,0,0,30,0,20,0,0,0,0,0,0
-Claw,3,0.3,0.6,0.35,0,20,0,0,-30,0,20,0,0,0,0,180,180
+﻿name,dammage,hitStart,hitEnd,scale,capTopX,capTorY,capTopZ,capDownX,capDownY,capDownZ,capRadius,offPosX,offPosY,offPosZ,offRotX,offRotY,offRotZ,specialHitStart,specialHitEnd
+,,,,,,,,,,,,,,,,,,,
+Sword,1,0.3,0.6,1,0,80,0,0,30,0,20,0,0,0,0,0,0,,
+Claw,3,0.3,0.6,0.35,0,20,0,0,-30,0,20,0,0,0,0,180,180,1,1.5

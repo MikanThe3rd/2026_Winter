@@ -43,11 +43,14 @@ void WeaponBase::InitCommon(int modelId)
 	capsule_->SetRadius(param_.capRadius);
 }
 
-void WeaponBase::UpdateHit(bool isAttacking, float attackTime)
+void WeaponBase::UpdateHit(bool isAttacking, float attackTime, bool isSpecial)
 {
+	const float start = isSpecial ? param_.specialHitStart : param_.hitStart;
+	const float end = isSpecial ? param_.specialHitEnd : param_.hitEnd;
+
 	bool active = isAttacking
-		&& attackTime >= param_.hitStart
-		&& attackTime <= param_.hitEnd;
+		&& attackTime >= start
+		&& attackTime <= end;
 
 	// 無効から有効になった瞬間 = 新しい一振り。ヒット履歴をリセット
 	if (active && !hitActive_)

@@ -43,11 +43,16 @@ Player::Player(void)
 
 	capsule_ = nullptr;
 
+	isSpecialAttack_ = false;
+
+	specialTargetPos_ = AsoUtility::VECTOR_ZERO;
+
 	// 状態管理
 	stateChanges_.emplace(STATE::NONE, std::bind(&Player::ChangeStateNone, this));
 	stateChanges_.emplace(STATE::PLAY, std::bind(&Player::ChangeStatePlay, this));
 	stateChanges_.emplace(STATE::ATTACK, std::bind(&Player::ChangeStateAttack, this));
 	stateChanges_.emplace(STATE::BLOODSUCKING, std::bind(&Player::ChangeStateBloodsucking, this));
+	stateChanges_.emplace(STATE::SPECIAL_ATTACK, std::bind(&Player::ChangeStateSpecialAttack, this));
 }
 
 Player::~Player(void)
@@ -203,6 +208,7 @@ void Player::InitAnimation(void)
 	animationController_->Add((int)ANIM_TYPE::JUMP, path + "Jump.mv1", 60.0f);
 	animationController_->Add((int)ANIM_TYPE::ATTACK, path + "Attack.mv1", 60.0f);
 	animationController_->Add((int)ANIM_TYPE::CLAW, path + "AttackClaw.mv1", 60.0f);
+	animationController_->Add((int)ANIM_TYPE::SPECIAL_CLAW, path + "ClawAttack.mv1", 50.0f);
 
 	animationController_->Play((int)ANIM_TYPE::IDLE);
 
@@ -254,7 +260,34 @@ void Player::ChangeStateBloodsucking(void)
 	movePow_ = AsoUtility::VECTOR_ZERO;
 
 	// アニメーション
-	animationController_->Play((int)ANIM_TYPE::CLAW, false, 0.0f, 60.0f);
+	animationController_->Play((int)ANIM_TYPE::CLAW, false, 0.0f, 100.0f);
+}
+
+void Player::ChangeStateSpecialAttack(void)
+{
+	stateUpdate_ = std::bind(&Player::UpdateSpecialAttack, this);
+
+	// 攻撃経過時間をリセット
+	stepAttack_ = 0.0f;
+
+	// 攻撃中は移動しない
+	movePow_ = AsoUtility::VECTOR_ZERO;
+
+	// スタン中の敵の方へ向く
+	VECTOR diff = VSub(specialTargetPos_, transform_.pos);
+	diff.y = 0.0f;
+	if (!AsoUtility::EqualsVZero(diff))
+	{
+		double rad = atan2((double)diff.x, (double)diff.z);
+		goalQuaRot_ = Quaternion::AngleAxis(rad, AsoUtility::AXIS_Y);
+		playerRotY_ = goalQuaRot_;   // 即座に向ける
+	}
+
+	// 発生フラグは消費する
+	isSpecialAttack_ = false;
+
+	// アニメーション
+	animationController_->Play((int)ANIM_TYPE::SPECIAL_CLAW, false);
 }
 
 void Player::UpdateNone(void)
@@ -324,6 +357,27 @@ void Player::UpdateBloodsucking(void)
 
 	// 攻撃アニメーションが終わったら通常状態へ戻る
 	if (animationController_->GetPlayType() == (int)ANIM_TYPE::CLAW
+		&& animationController_->IsEnd())
+	{
+		ChangeState(STATE::PLAY);
+	}
+}
+
+void Player::UpdateSpecialAttack(void)
+{
+	// 攻撃開始からの経過時間
+	stepAttack_ += scnMng_.GetDeltaTime();
+
+	// 攻撃中は入力移動なし(重力と衝突だけ処理する)
+	movePow_ = AsoUtility::VECTOR_ZERO;
+
+	CalcGravityPow();
+	Collision();
+
+	transform_.quaRot = playerRotY_;
+
+	// 攻撃アニメーションが終わったら通常状態へ戻る
+	if (animationController_->GetPlayType() == (int)ANIM_TYPE::SPECIAL_CLAW
 		&& animationController_->IsEnd())
 	{
 		ChangeState(STATE::PLAY);
@@ -536,10 +590,17 @@ void Player::ProcessAttackBloodsucking(void)
 {
 	auto& ins = InputManager::GetInstance();
 
-	// 地面にいるときだけ攻撃開始
 	if (ins.IsClickMouseRight() && !isJump_ && IsEndLanding())
 	{
-		ChangeState(STATE::BLOODSUCKING);
+		// 近くにスタン中の敵がいれば特殊攻撃、いなければ通常の爪攻撃
+		if (isSpecialAttack_)
+		{
+			ChangeState(STATE::SPECIAL_ATTACK);
+		}
+		else
+		{
+			ChangeState(STATE::BLOODSUCKING);
+		}
 	}
 }
 

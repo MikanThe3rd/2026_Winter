@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <Windows.h>
 
 class Application
 {
@@ -9,6 +10,10 @@ public:
 	// スクリーンサイズ
 	static constexpr int SCREEN_SIZE_X = 1024;
 	static constexpr int SCREEN_SIZE_Y = 640;
+
+	// FPS関連
+	static constexpr int FPS = 60;
+	static constexpr LONGLONG FRAME_TIME_US = 1000000 / FPS;
 
 	// データパス関連
 	//-------------------------------------------
@@ -50,6 +55,12 @@ private:
 	// 解放失敗
 	bool isReleaseFail_;
 
+	// FPS制御用
+	LONGLONG frameStartTime_;   // フレーム開始時刻(マイクロ秒)
+	int fpsCount_;              // 1秒間のフレーム数カウント
+	LONGLONG fpsCalcTime_;      // FPS計測の基準時刻
+	float fps_;                 // 計測したFPS
+
 	// デフォルトコンストラクタをprivateにして、
 	// 外部から生成できない様にする
 	Application(void);
@@ -58,5 +69,11 @@ private:
 
 	// Effekseerの初期化
 	void InitEffekseer(void);
+
+	// FPS制御(目標時間まで待機)
+	void FpsControl(void);
+
+	// FPS計測
+	void CalcFps(void);
 
 };
