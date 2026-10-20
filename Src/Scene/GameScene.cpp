@@ -14,7 +14,7 @@
 #include "../Object/Weapon/WeaponBase.h"
 #include "../Object/Weapon/WeaponManager.h"
 #include "../Object/Enemy/EnemyBase.h"
-#include "../Object/Weapon/EnemyWeapon.h"
+#include "../Object/Enemy/EnemyWeapon/EnemySword.h"
 #include "../Object/Enemy/EnemyManager.h"
 #include "GameScene.h"
 
@@ -206,7 +206,7 @@ void GameScene::CollisionEnemyWeaponPlayer(void)
 		}
 
 		// 武器なしの敵、または判定が出ていない間はスキップ
-		EnemyWeapon* w = e->GetWeapon();
+		EnemySword* w = e->GetWeapon();
 		if (w == nullptr || !w->IsHitActive())
 		{
 			continue;

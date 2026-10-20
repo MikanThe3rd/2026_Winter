@@ -40,8 +40,4 @@ private:
 
 	// キャラクター
 	Transform charactor_;
-
-	// アニメーション
-	std::unique_ptr<AnimationController> animationController_;
-
 };

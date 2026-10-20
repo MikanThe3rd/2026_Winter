@@ -15,7 +15,6 @@ TitleScene::TitleScene(void)
 	imgPush_ = -1;
 	imgTitle_ = -1;
 	skyDome_ = nullptr;
-	animationController_ = nullptr;
 }
 
 TitleScene::~TitleScene(void)
@@ -45,12 +44,6 @@ void TitleScene::Init(void)
 		0.0f, AsoUtility::Deg2RadF(90.0f), 0.0f);
 	charactor_.Update();
 
-	// アニメーションの設定
-	std::string path = Application::PATH_MODEL + "Player/";
-	animationController_ = std::make_unique<AnimationController>(charactor_.modelId);
-	animationController_->Add(0, path + "Run.mv1", 20.0f);
-	animationController_->Play(0);
-
 	// 定点カメラ
 	mainCamera.ChangeMode(Camera::MODE::FIXED_POINT);
 
@@ -71,11 +64,7 @@ void TitleScene::Update(void)
 		Quaternion::Euler(0.0f, 0.0f, AsoUtility::Deg2RadF(-1.0f)));
 	movePlanet_.Update();
 
-	// キャラアニメーション
-	animationController_->Update();
-
 	skyDome_->Update();
-
 }
 
 void TitleScene::Draw(void)

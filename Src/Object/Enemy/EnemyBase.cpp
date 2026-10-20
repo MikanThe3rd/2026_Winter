@@ -6,8 +6,8 @@
 #include "../Common/Capsule.h"
 #include "../Common/Collider.h"
 #include "../Planet.h"
-#include "../Weapon/EnemyWeapon.h"           
-#include "../Weapon/EnemyWeaponDatabase.h"    
+#include "EnemyWeapon/EnemySword.h"           
+#include "EnemyWeapon/EnemyWeaponDatabase.h"    
 #include "EnemyBase.h"
 
 EnemyBase::EnemyBase(void)
@@ -135,7 +135,7 @@ void EnemyBase::EquipWeapon(const std::string& weaponName)
 		return;
 	}
 
-	weapon_ = std::make_unique<EnemyWeapon>(*data, transform_.modelId);
+	weapon_ = std::make_unique<EnemySword>(*data, transform_.modelId);
 }
 
 bool EnemyBase::TryStartAttack(float dist)
@@ -188,13 +188,12 @@ void EnemyBase::ChangeStateStun(void)
 
 	stunTimer_ = STUN_TIME;
 
-	// スタン用アニメが無いので、用意するまでは IDLE で代用
 	animationController_->Play((int)ANIM_TYPE::STUN);
 }
 
 void EnemyBase::UpdateStun(void)
 {
-	// 行動不能(重力と衝突判定は Update 側で通常どおり処理される)
+	// 行動不能
 	movePow_ = AsoUtility::VECTOR_ZERO;
 
 	if (--stunTimer_ <= 0)

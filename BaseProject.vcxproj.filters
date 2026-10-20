@@ -168,7 +168,7 @@
     <ClCompile Include="Src\Object\PlayerParam.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Object\Weapon\EnemyWeapon.cpp">
+    <ClCompile Include="Src\Object\Enemy\EnemyWeapon\EnemySword.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Src\Object\Weapon\Claw.cpp">
@@ -299,10 +299,10 @@
     <ClInclude Include="Src\Object\PlayerParam.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Object\Weapon\EnemyWeapon.h">
+    <ClInclude Include="Src\Object\Enemy\EnemyWeapon\EnemySword.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Object\Weapon\EnemyWeaponDatabase.h">
+    <ClInclude Include="Src\Object\Enemy\EnemyWeapon\EnemyWeaponDatabase.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Src\Object\Weapon\Claw.h">
