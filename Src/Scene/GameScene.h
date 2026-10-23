@@ -70,9 +70,15 @@ private:
 	// 特殊攻撃の開始検出用
 	bool wasSpecialAttacking_ = false;
 
-	// 特殊攻撃のイベントカメラ時間(秒)。アニメの長さに合わせる
+	// 特殊攻撃のイベントカメラ時間(秒)。
 	static constexpr float SPECIAL_CAMERA_TIME = 2.47f;
 
 	// 特殊攻撃が始まった瞬間の演出(カメラなど)
 	void UpdateSpecialAttackDirection(void);
+
+	// プレイヤーと敵、敵同士の重なりを解消する
+	void ResolveBodyOverlap(void);
+
+	// 押し戻しの割合(プレイヤーは動かされにくくする)
+	static constexpr float PLAYER_PUSH_RATE = 0.3f;
 };

@@ -73,6 +73,7 @@ void WeaponManager::Draw(void)
 			weapons_[i]->Draw();
 		}
 	}
+
 }
 
 bool WeaponManager::Switch(TYPE type)

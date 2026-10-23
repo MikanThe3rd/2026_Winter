@@ -92,6 +92,9 @@ public:
 		specialTargetPos_ = targetPos;
 	}
 
+	// 重なった場合の押しだし
+	void AddPos(const VECTOR& v);
+
 private:
 
 	// アニメーション

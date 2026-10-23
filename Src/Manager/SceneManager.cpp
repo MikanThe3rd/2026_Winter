@@ -1,4 +1,4 @@
-#include <chrono>
+ï»¿#include <chrono>
 #include <DxLib.h>
 #include <EffekseerForDXLib.h>
 #include "../Application.h"
@@ -36,23 +36,23 @@ void SceneManager::Init(void)
 	fader_ = std::make_unique<Fader>();
 	fader_->Init();
 
-	// ƒJƒƒ‰
+	// ã‚«ãƒ¡ãƒ©
 	camera_ = std::make_unique<Camera>();
 	camera_->Init();
 
 	isSceneChanging_ = false;
 
-	// ƒfƒ‹ƒ^ƒ^ƒCƒ€
+	// ãƒ‡ãƒ«ã‚¿ã‚¿ã‚¤ãƒ 
 	preTime_ = std::chrono::system_clock::now();
 
-	//ƒƒCƒ“ƒXƒNƒŠ[ƒ“‚Ìì¬
+	//ãƒ¡ã‚¤ãƒ³ã‚¹ã‚¯ãƒªãƒ¼ãƒ³ã®ä½œæˆ
 	mainScreen_ = MakeScreen(
 		Application::SCREEN_SIZE_X, Application::SCREEN_SIZE_Y, true);
 
-	// 3D—p‚Ìİ’è
+	// 3Dç”¨ã®è¨­å®š
 	Init3D();
 
-	// ‰ŠúƒV[ƒ“‚Ìİ’è
+	// åˆæœŸã‚·ãƒ¼ãƒ³ã®è¨­å®š
 	DoChangeScene(SCENE_ID::TITLE);
 
 }
@@ -60,25 +60,31 @@ void SceneManager::Init(void)
 void SceneManager::Init3D(void)
 {
 
-	// ”wŒiFİ’è
+	// èƒŒæ™¯è‰²è¨­å®š
 	SetBackgroundColor(0, 139, 139);
 
-	// Zƒoƒbƒtƒ@‚ğ—LŒø‚É‚·‚é
+	// Zãƒãƒƒãƒ•ã‚¡ã‚’æœ‰åŠ¹ã«ã™ã‚‹
 	SetUseZBuffer3D(true);
 
-	// Zƒoƒbƒtƒ@‚Ö‚Ì‘‚«‚İ‚ğ—LŒø‚É‚·‚é
+	// Zãƒãƒƒãƒ•ã‚¡ã¸ã®æ›¸ãè¾¼ã¿ã‚’æœ‰åŠ¹ã«ã™ã‚‹
 	SetWriteZBuffer3D(true);
 
-	// ƒoƒbƒNƒJƒŠƒ“ƒO‚ğ—LŒø‚É‚·‚é
+	// ãƒãƒƒã‚¯ã‚«ãƒªãƒ³ã‚°ã‚’æœ‰åŠ¹ã«ã™ã‚‹
 	SetUseBackCulling(true);
 
-	// ƒ‰ƒCƒg‚Ìİ’è
+	// ãƒ©ã‚¤ãƒˆã®è¨­å®š
 	SetUseLighting(true);
 	
-	// ƒ‰ƒCƒg‚Ìİ’è
+	// ãƒ©ã‚¤ãƒˆã®è¨­å®š
 	ChangeLightTypeDir({ 0.3f, -0.7f, 0.8f });
 
-	// ƒtƒHƒOİ’è
+	SetLightDifColor(GetColorF(0.0f, 0.0f, 0.0f, 1.0f));
+	SetLightAmbColor(GetColorF(0.0f, 0.0f, 0.0f, 1.0f));
+	SetGlobalAmbientLight(GetColorF(0.0f, 0.0f, 0.0f, 1.0f));
+
+	SetGlobalAmbientLight(GetColorF(0.1f, 0.1f, 0.1f, 1.0f));
+
+	// ãƒ•ã‚©ã‚°è¨­å®š
 	SetFogEnable(true);
 	SetFogColor(5, 5, 5);
 	SetFogStartEnd(10000.0f, 20000.0f);
@@ -93,7 +99,7 @@ void SceneManager::Update(void)
 		return;
 	}
 
-	// ƒfƒ‹ƒ^ƒ^ƒCƒ€
+	// ãƒ‡ãƒ«ã‚¿ã‚¿ã‚¤ãƒ 
 	auto nowTime = std::chrono::system_clock::now();
 	deltaTime_ = static_cast<float>(
 		std::chrono::duration_cast<std::chrono::nanoseconds>(nowTime - preTime_).count() / 1000000000.0);
@@ -109,38 +115,38 @@ void SceneManager::Update(void)
 		scene_->Update();
 	}
 
-	// ƒJƒƒ‰XV
+	// ã‚«ãƒ¡ãƒ©æ›´æ–°
 	camera_->Update();
 }
 
 void SceneManager::Draw(void)
 {
-	// •`‰ææƒOƒ‰ƒtƒBƒbƒN—Ìˆæ‚Ìw’è
-	// (‚R‚c•`‰æ‚Åg—p‚·‚éƒJƒƒ‰‚Ìİ’è‚È‚Ç‚ªƒŠƒZƒbƒg‚³‚ê‚é)
+	// æç”»å…ˆã‚°ãƒ©ãƒ•ã‚£ãƒƒã‚¯é ˜åŸŸã®æŒ‡å®š
+	// (ï¼“ï¼¤æç”»ã§ä½¿ç”¨ã™ã‚‹ã‚«ãƒ¡ãƒ©ã®è¨­å®šãªã©ãŒãƒªã‚»ãƒƒãƒˆã•ã‚Œã‚‹)
 	SetDrawScreen(mainScreen_);
 
-	// ‰æ–Ê‚ğ‰Šú‰»
+	// ç”»é¢ã‚’åˆæœŸåŒ–
 	ClearDrawScreen();
 
-	// ƒJƒƒ‰İ’è
+	// ã‚«ãƒ¡ãƒ©è¨­å®š
 	camera_->SetBeforeDraw();
 
-	// Effekseer‚É‚æ‚èÄ¶’†‚ÌƒGƒtƒFƒNƒg‚ğXV‚·‚éB
+	// Effekseerã«ã‚ˆã‚Šå†ç”Ÿä¸­ã®ã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚’æ›´æ–°ã™ã‚‹ã€‚
 	UpdateEffekseer3D();
 
-	// •`‰æ
+	// æç”»
 	scene_->Draw();
 
-	// å‚Éƒ|ƒXƒgƒGƒtƒFƒNƒg—p
+	// ä¸»ã«ãƒã‚¹ãƒˆã‚¨ãƒ•ã‚§ã‚¯ãƒˆç”¨
 	camera_->Draw();
 
-	// Effekseer‚É‚æ‚èÄ¶’†‚ÌƒGƒtƒFƒNƒg‚ğ•`‰æ‚·‚éB
+	// Effekseerã«ã‚ˆã‚Šå†ç”Ÿä¸­ã®ã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚’æç”»ã™ã‚‹ã€‚
 	DrawEffekseer3D();
 	
-	// ˆÃ“]E–¾“]
+	// æš—è»¢ãƒ»æ˜è»¢
 	fader_->Draw();
 
-	//”w–ÊƒXƒNƒŠ[ƒ“‚ÉƒƒCƒ“ƒXƒNƒŠ[ƒ“‚ğ•`‰æ
+	//èƒŒé¢ã‚¹ã‚¯ãƒªãƒ¼ãƒ³ã«ãƒ¡ã‚¤ãƒ³ã‚¹ã‚¯ãƒªãƒ¼ãƒ³ã‚’æç”»
 	SetDrawScreen(DX_SCREEN_BACK);
 	DrawGraph(0, 0, mainScreen_, true);
 }
@@ -153,11 +159,11 @@ void SceneManager::Destroy(void)
 
 void SceneManager::ChangeScene(SCENE_ID nextId)
 {
-	// ƒtƒF[ƒhˆ—‚ªI‚í‚Á‚Ä‚©‚çƒV[ƒ“‚ğ•Ï‚¦‚éê‡‚à‚ ‚é‚½‚ßA
-	// ‘JˆÚæƒV[ƒ“‚ğƒƒ“ƒo•Ï”‚É•Û
+	// ãƒ•ã‚§ãƒ¼ãƒ‰å‡¦ç†ãŒçµ‚ã‚ã£ã¦ã‹ã‚‰ã‚·ãƒ¼ãƒ³ã‚’å¤‰ãˆã‚‹å ´åˆã‚‚ã‚ã‚‹ãŸã‚ã€
+	// é·ç§»å…ˆã‚·ãƒ¼ãƒ³ã‚’ãƒ¡ãƒ³ãƒå¤‰æ•°ã«ä¿æŒ
 	waitSceneId_ = nextId;
 
-	// ƒtƒF[ƒhƒAƒEƒg(ˆÃ“])‚ğŠJn‚·‚é
+	// ãƒ•ã‚§ãƒ¼ãƒ‰ã‚¢ã‚¦ãƒˆ(æš—è»¢)ã‚’é–‹å§‹ã™ã‚‹
 	fader_->SetFade(Fader::STATE::FADE_OUT);
 	isSceneChanging_ = true;
 }
@@ -193,7 +199,7 @@ SceneManager::SceneManager(void)
 
 	isSceneChanging_ = false;
 
-	// ƒfƒ‹ƒ^ƒ^ƒCƒ€
+	// ãƒ‡ãƒ«ã‚¿ã‚¿ã‚¤ãƒ 
 	deltaTime_ = 1.0f / 60.0f;
 
 	camera_ = nullptr;
@@ -207,13 +213,13 @@ void SceneManager::ResetDeltaTime(void)
 
 void SceneManager::DoChangeScene(SCENE_ID sceneId)
 {
-	// ƒŠƒ\[ƒX‚Ì‰ğ•ú
+	// ãƒªã‚½ãƒ¼ã‚¹ã®è§£æ”¾
 	ResourceManager::GetInstance().Release();
 
-	// ƒV[ƒ“‚ğ•ÏX‚·‚é
+	// ã‚·ãƒ¼ãƒ³ã‚’å¤‰æ›´ã™ã‚‹
 	sceneId_ = sceneId;
 
-	// Œ»İ‚ÌƒV[ƒ“‚ğ‰ğ•ú
+	// ç¾åœ¨ã®ã‚·ãƒ¼ãƒ³ã‚’è§£æ”¾
 	if (scene_ != nullptr)
 	{
 		scene_.reset();
@@ -248,21 +254,21 @@ void SceneManager::Fade(void)
 	switch (fState)
 	{
 	case Fader::STATE::FADE_IN:
-		// –¾“]’†
+		// æ˜è»¢ä¸­
 		if (fader_->IsEnd())
 		{
-			// –¾“]‚ªI—¹‚µ‚½‚çAƒtƒF[ƒhˆ—I—¹
+			// æ˜è»¢ãŒçµ‚äº†ã—ãŸã‚‰ã€ãƒ•ã‚§ãƒ¼ãƒ‰å‡¦ç†çµ‚äº†
 			fader_->SetFade(Fader::STATE::NONE);
 			isSceneChanging_ = false;
 		}
 		break;
 	case Fader::STATE::FADE_OUT:
-		// ˆÃ“]’†
+		// æš—è»¢ä¸­
 		if (fader_->IsEnd())
 		{
-			// Š®‘S‚ÉˆÃ“]‚µ‚Ä‚©‚çƒV[ƒ“‘JˆÚ
+			// å®Œå…¨ã«æš—è»¢ã—ã¦ã‹ã‚‰ã‚·ãƒ¼ãƒ³é·ç§»
 			DoChangeScene(waitSceneId_);
-			// ˆÃ“]‚©‚ç–¾“]‚Ö
+			// æš—è»¢ã‹ã‚‰æ˜è»¢ã¸
 			fader_->SetFade(Fader::STATE::FADE_IN);
 		}
 		break;

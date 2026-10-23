@@ -33,6 +33,10 @@ void Claw::Draw(void)
 	// モデルの描画
 	MV1DrawModel(transform_.modelId);
 
+#ifdef _DEBUG
+	// カプセルコライダの描画
+	//capsule_->Draw();
+#endif
 }
 
 static Quaternion MatrixToQuaternion(const MATRIX& m)

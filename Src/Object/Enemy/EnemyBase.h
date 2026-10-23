@@ -13,6 +13,7 @@ class Collider;
 class Capsule;
 class AnimationController;
 class EnemySword;
+
 class EnemyBase
 {
 public:
@@ -101,6 +102,9 @@ public:
 	// •Ší‚Ì—L–³Eæ“¾(•Ší‚È‚µ‚È‚ç nullptr)
 	bool HasWeapon(void) const { return weapon_ != nullptr; }
 	EnemySword* GetWeapon(void) { return weapon_.get(); }
+
+	//d‚È‚Á‚½ê‡‚Ì‰Ÿ‚µ‚¾‚µ
+	void AddPos(const VECTOR& v);
 
 protected:
 

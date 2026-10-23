@@ -196,13 +196,18 @@ void Player::DrawHud(void)
 	DrawBox(x, y, x + (int)(w * rate), y + h, color, TRUE);
 }
 
+void Player::AddPos(const VECTOR& v)
+{
+	transform_.pos = VAdd(transform_.pos, v);
+}
+
 void Player::InitAnimation(void)
 {
 
 	std::string path = Application::PATH_MODEL + "Player/";
 
 	animationController_ = std::make_unique<AnimationController>(transform_.modelId);
-	animationController_->Add((int)ANIM_TYPE::IDLE, path + "Idle.mv1", 20.0f);
+	animationController_->Add((int)ANIM_TYPE::IDLE, path + "Idle.mv1", 10.0f);
 	animationController_->Add((int)ANIM_TYPE::RUN, path + "Walking.mv1", 20.0f);
 	animationController_->Add((int)ANIM_TYPE::FAST_RUN, path + "Run1.mv1", 20.0f);
 	animationController_->Add((int)ANIM_TYPE::JUMP, path + "Jump.mv1", 60.0f);

@@ -138,6 +138,11 @@ void EnemyBase::EquipWeapon(const std::string& weaponName)
 	weapon_ = std::make_unique<EnemySword>(*data, transform_.modelId);
 }
 
+void EnemyBase::AddPos(const VECTOR& v)
+{
+	transform_.pos = VAdd(transform_.pos, v);
+}
+
 bool EnemyBase::TryStartAttack(float dist)
 {
 	if (weapon_ == nullptr || !weapon_->CanAttack(dist))

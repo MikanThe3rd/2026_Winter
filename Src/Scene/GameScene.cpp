@@ -1,3 +1,5 @@
+#include <vector>
+#include <functional>
 #include <DxLib.h>
 #include "../Utility/AsoUtility.h"
 #include "../Application.h"
@@ -98,6 +100,9 @@ void GameScene::Update(void)
 
 	enemyManager_->Update();
 
+	// プレイヤーと敵、敵同士の重なりを解消する
+	ResolveBodyOverlap();
+
 	weaponManager_->Update(player_->GetTransform(),
 		player_->IsAttacking(), player_->GetAttackTime(),
 		player_->IsSpecialAttacking());
@@ -134,14 +139,6 @@ void GameScene::Draw(void)
 	effectManager_->Draw(mainScreen);
 
 	player_->DrawHud();
-
-	if (player_->IsSpecialAttacking())
-	{
-		DrawFormatString(20, 20, GetColor(255, 255, 255),
-			"special t=%.2f hit=%d",
-			player_->GetAttackTime(),
-			weaponManager_->GetActive().IsHitActive() ? 1 : 0);
-	}
 }
 
 void GameScene::CollisionWeaponEnemy(void)
@@ -150,7 +147,6 @@ void GameScene::CollisionWeaponEnemy(void)
 	WeaponBase& weapon = weaponManager_->GetActive();
 	if (!weapon.IsHitActive()) return;
 
-	// 特殊攻撃中は、スタン中の対象にだけ当てる(カプセルの接触は見ない)
 	if (player_->IsSpecialAttacking())
 	{
 		for (const auto& e : enemyManager_->GetEnemies())
@@ -188,10 +184,15 @@ void GameScene::CollisionWeaponEnemy(void)
 	}
 }
 
-// 追加
 void GameScene::CollisionEnemyWeaponPlayer(void)
 {
 	if (!player_->IsAlive())
+	{
+		return;
+	}
+
+	//特殊攻撃中は攻撃に当たらない
+	if (player_->IsSpecialAttacking())
 	{
 		return;
 	}
@@ -233,8 +234,6 @@ void GameScene::CheckGameClear(void)
 			return;
 		}
 	}
-
-	// ここに来た = 全員死亡 → クリア画面へ
 	SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::GAME_CLEAR);
 }
 
@@ -292,4 +291,76 @@ void GameScene::UpdateSpecialAttackDirection(void)
 			&player_->GetTransform(), SPECIAL_CAMERA_TIME);
 	}
 	wasSpecialAttacking_ = isSpecial;
+}
+
+void GameScene::ResolveBodyOverlap(void)
+{
+	// 押し戻し対象をまとめる(プレイヤー + 生存中の敵)
+	struct Body
+	{
+		const Capsule* cap;
+		float weight;                    // 押し戻される割合
+		std::function<void(const VECTOR&)> move;
+	};
+	std::vector<Body> bodies;
+
+	if (player_->IsAlive())
+	{
+		bodies.push_back({ &player_->GetCapsule(), PLAYER_PUSH_RATE,
+			[this](const VECTOR& v) { player_->AddPos(v); } });
+	}
+
+	for (const auto& e : enemyManager_->GetEnemies())
+	{
+		if (!e->IsAlive()) continue;
+
+		// 特殊攻撃の対象は演出中に動かさない
+		const float w = (e.get() == specialTarget_ && player_->IsSpecialAttacking())
+			? 0.0f : 1.0f;
+
+		EnemyBase* ep = e.get();
+		bodies.push_back({ &ep->GetCapsule(), w,
+			[ep](const VECTOR& v) { ep->AddPos(v); } });
+	}
+
+	// 総当たりで判定
+	for (size_t i = 0; i < bodies.size(); ++i)
+	{
+		for (size_t j = i + 1; j < bodies.size(); ++j)
+		{
+			const Capsule& a = *bodies[i].cap;
+			const Capsule& b = *bodies[j].cap;
+
+			// カプセル(線分)同士の最短距離
+			float dist = Segment_Segment_MinLength(
+				a.GetPosTop(), a.GetPosDown(),
+				b.GetPosTop(), b.GetPosDown());
+
+			const float minDist = a.GetRadius() + b.GetRadius();
+			if (dist >= minDist) continue;
+
+			// 押し出す方向:水平(XZ)方向の中心間ベクトル
+			VECTOR diff = VSub(b.GetPosDown(), a.GetPosDown());
+			diff.y = 0.0f;
+			float len = VSize(diff);
+			if (len < 0.0001f)
+			{
+				diff = VGet(1.0f, 0.0f, 0.0f);   // 完全に重なった場合の逃げ道
+				len = 1.0f;
+			}
+			const VECTOR dir = VScale(diff, 1.0f / len);
+
+			// めり込んだ量
+			const float depth = minDist - dist;
+
+			// 重みで押し戻し量を配分
+			const float wa = bodies[i].weight;
+			const float wb = bodies[j].weight;
+			const float sum = wa + wb;
+			if (sum <= 0.0f) continue;
+
+			bodies[i].move(VScale(dir, -depth * (wa / sum)));
+			bodies[j].move(VScale(dir, depth * (wb / sum)));
+		}
+	}
 }
