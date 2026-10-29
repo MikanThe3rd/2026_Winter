@@ -7,6 +7,7 @@
 #include "../Manager/Camera.h"
 #include "../Manager/InputManager.h"
 #include "../Manager/EffectManager.h"
+#include"../Manager/RunManager.h"
 #include "../Object/Common/Capsule.h"
 #include "../Object/Common/Collider.h"
 #include "../Object/SkyDome.h"
@@ -36,18 +37,24 @@ GameScene::~GameScene(void)
 
 void GameScene::Init(void)
 {
+	RunManager& run = RunManager::GetInstance();
 
-	// プレイヤー
 	player_ = std::make_unique<Player>();
 	player_->Init();
+	run.ApplyToPlayer(*player_);          // 前の戦闘からHPを引き継ぐ
 
-	// 敵(CSV を読み込み、記載されたエネミーをスポーンさせる)
 	enemyManager_ = std::make_unique<EnemyManager>();
 	enemyManager_->SetTarget(&player_->GetTransform());
-	enemyManager_->Init();
+	if (run.IsRunning() && run.HasCurrentNode())
+	{
+		enemyManager_->Init(run.GetCurrentNode().battleId);
+	}
+	else
+	{
+		enemyManager_->Init();   // GameScene 単体起動(デバッグ)時は従来どおり
+	}
 
 	// 武器(武器を変えるのはここだけ)
-	//weapon_ = std::make_unique<Sword>();
 	weaponManager_ = std::make_unique<WeaponManager>();
 	weaponManager_->Init();
 	weaponManager_->SetDrawAll(true);
@@ -234,7 +241,17 @@ void GameScene::CheckGameClear(void)
 			return;
 		}
 	}
-	SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::GAME_CLEAR);
+	
+	RunManager& run = RunManager::GetInstance();
+	if (!run.IsRunning())
+	{
+		SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::GAME_CLEAR);
+		return;
+	}
+	run.StoreFromPlayer(*player_);
+	SceneManager::GetInstance().ChangeScene(run.IsBossNode()
+		? SceneManager::SCENE_ID::GAME_CLEAR
+		: SceneManager::SCENE_ID::MAP);
 }
 
 void GameScene::CheckGameOver(void)

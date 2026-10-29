@@ -19,7 +19,9 @@ public:
 	{
 		NONE,
 		TITLE,
+		MAP,
 		GAME,
+		EVENT,
 		GAME_OVER,
 		GAME_CLEAR,
 	};

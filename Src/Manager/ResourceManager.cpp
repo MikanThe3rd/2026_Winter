@@ -39,6 +39,22 @@ void ResourceManager::Init(void)
 	res = std::make_unique<RES>(RES_T::IMG, PATH_IMG + "PushSpace.png");
 	resourcesMap_.emplace(SRC::PUSH_SPACE, std::move(res));
 
+	//通常戦闘のアイコン
+	res = std::make_unique<RES>(RES_T::IMG, PATH_IMG + "Normal.png");
+	resourcesMap_.emplace(SRC::BATTLE_ICON_NORMAL, std::move(res));
+
+	//強敵戦闘のアイコン
+	res = std::make_unique<RES>(RES_T::IMG, PATH_IMG + "Elite.png");
+	resourcesMap_.emplace(SRC::BATTLE_ICON_ELITE, std::move(res));
+
+	//ボス戦闘のアイコン
+	res = std::make_unique<RES>(RES_T::IMG, PATH_IMG + "Boss.png");
+	resourcesMap_.emplace(SRC::BATTLE_ICON_BOSS, std::move(res));
+
+	//イベントのアイコン
+	res = std::make_unique<RES>(RES_T::IMG, PATH_IMG + "Event.png");
+	resourcesMap_.emplace(SRC::EVENT_ICON, std::move(res));
+
 	// プレイヤー
 	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "Player/vampire.mv1");
 	resourcesMap_.emplace(SRC::PLAYER, std::move(res));
@@ -66,6 +82,8 @@ void ResourceManager::Init(void)
 	// ナイト
 	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "Knight/Knight.mv1");
 	resourcesMap_.emplace(SRC::KNIGHT, std::move(res));
+
+
 }
 
 void ResourceManager::Release(void)

@@ -33,7 +33,7 @@ EnemyManager::~EnemyManager(void)
 {
 }
 
-void EnemyManager::Init(void)
+void EnemyManager::Init(const std::string& battleId)
 {
 	enemies_.clear();
 
@@ -46,7 +46,17 @@ void EnemyManager::Init(void)
 
 	for (const auto& data : list)
 	{
+		// 戦闘IDが指定されていれば、その戦闘の行だけ生成する
+		if (!battleId.empty() && data.battle != battleId)
+		{
+			continue;
+		}
 		Spawn(data);
+	}
+
+	if (enemies_.empty())
+	{
+		OutputDebugStringA(("[EnemyManager] 該当するエネミーがありません: battle=" + battleId + "\n").c_str());
 	}
 }
 
@@ -146,6 +156,16 @@ bool EnemyManager::LoadSpawnData(const std::string& path, std::vector<EnemySpawn
 	while (std::getline(ifs, line))
 	{
 		lineNo++;
+
+		// UTF-8 BOM を除去
+		if (lineNo == 1 && line.size() >= 3
+			&& static_cast<unsigned char>(line[0]) == 0xEF
+			&& static_cast<unsigned char>(line[1]) == 0xBB
+			&& static_cast<unsigned char>(line[2]) == 0xBF)
+		{
+			line.erase(0, 3);
+		}
+
 		line = Trim(line);
 
 		if (line.empty() || line[0] == '#')
@@ -159,6 +179,12 @@ bool EnemyManager::LoadSpawnData(const std::string& path, std::vector<EnemySpawn
 		while (std::getline(ss, cell, ','))
 		{
 			cols.push_back(Trim(cell));
+		}
+
+		// ヘッダ行と、区切り用の空行(",,,,")は読み飛ばす
+		if (cols.empty() || cols[0].empty() || cols[0] == "type")
+		{
+			continue;
 		}
 
 		if (cols.size() < 4)
@@ -197,6 +223,12 @@ bool EnemyManager::LoadSpawnData(const std::string& path, std::vector<EnemySpawn
 			if (cols.size() > 10)
 			{
 				d.weapon = cols[10];
+			}
+
+			// 所属する戦闘ID
+			if (cols.size() > 11)
+			{
+				d.battle = cols[11];
 			}
 
 			out.push_back(d);

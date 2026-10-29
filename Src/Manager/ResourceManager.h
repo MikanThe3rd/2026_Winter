@@ -21,6 +21,10 @@ public:
 		SWORD,
 		CLAW,
 		KNIGHT,
+		BATTLE_ICON_NORMAL,
+		BATTLE_ICON_ELITE,
+		BATTLE_ICON_BOSS,
+		EVENT_ICON,
 	};
 
 	// 明示的にインステンスを生成する

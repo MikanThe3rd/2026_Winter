@@ -5,10 +5,13 @@
 #include "../Application.h"
 #include "../Utility/AsoUtility.h"
 #include "../Manager/InputManager.h"
+#include"../Manager/ResourceManager.h"
 #include "../Object/Common/Transform.h"
 #include "Camera.h"
 
 Camera::Camera(void)
+	:
+	resMng_(ResourceManager::GetInstance())
 {
 	angles_ = VECTOR();
 	cameraUp_ = VECTOR();
@@ -27,17 +30,24 @@ Camera::Camera(void)
 	blendTimer_ = 0.0f;
 	blendStartPos_ = AsoUtility::VECTOR_ZERO;
 	blendStartTarget_ = AsoUtility::VECTOR_ZERO;
+	cursorImg_ = -1;
+	cursorPosX_ = 0;
+	cursorPosY_ = 0;
 }
 
 Camera::~Camera(void)
 {
+	if (cursorImg_ != -1)
+	{
+		DeleteGraph(cursorImg_);
+	}
 }
 
 void Camera::Init(void)
 {
-
 	ChangeMode(MODE::FIXED_POINT);
 
+	cursorImg_ = LoadGraph("Data/Image/Cursor.png");
 }
 
 void Camera::Update(void)
@@ -65,8 +75,8 @@ void Camera::SetBeforeDraw(void)
 
 	// カメラの設定(位置と注視点による制御)
 	SetCameraPositionAndTargetAndUpVec(
-		pos_, 
-		targetPos_, 
+		pos_,
+		targetPos_,
 		cameraUp_
 	);
 
@@ -77,6 +87,7 @@ void Camera::SetBeforeDraw(void)
 
 void Camera::Draw(void)
 {
+	DrawCursor();
 }
 
 void Camera::SetFollow(const Transform* follow)
@@ -168,6 +179,7 @@ void Camera::ChangeMode(MODE mode)
 	switch (mode_)
 	{
 	case Camera::MODE::FIXED_POINT:
+		SetMouseDispFlag(FALSE);
 		break;
 	case Camera::MODE::FOLLOW:
 		break;
@@ -238,7 +250,7 @@ void Camera::ProcessRot(bool isLimit)
 	}
 	else
 	{
-		SetMouseDispFlag(TRUE);
+		SetMouseDispFlag(FALSE);
 		// 方向回転によるXYZの移動(キーボード)
 
 	}
@@ -246,7 +258,7 @@ void Camera::ProcessRot(bool isLimit)
 
 void Camera::SetBeforeDrawFixedPoint(void)
 {
-	// 何もしない
+
 }
 
 void Camera::SetBeforeDrawFollow(void)
@@ -423,4 +435,33 @@ VECTOR Camera::OrbitLocalPos(float angleDeg, float dist, float height) const
 {
 	float rad = AsoUtility::Deg2RadF(angleDeg);
 	return VGet(sinf(rad) * dist, height, cosf(rad) * dist);
+}
+
+void Camera::DrawCursor(void)
+{
+	// カーソルを出すのは「固定カメラ中」か「FOLLOW中にAltでカーソルを解放している間」
+	bool isShow = false;
+	if (mode_ == MODE::FIXED_POINT)
+	{
+		isShow = true;
+	}
+	else if (mode_ == MODE::FOLLOW &&
+		InputManager::GetInstance().IsNew(KEY_INPUT_LALT))
+	{
+		isShow = true;
+	}
+
+	if (!isShow || cursorImg_ == -1)
+	{
+		return;
+	}
+
+	GetMousePoint(&cursorPosX_, &cursorPosY_);
+
+	// 画像の先端(CURSOR_TIP)がマウス座標に来るように描画
+	DrawRotaGraph2(
+		cursorPosX_, cursorPosY_,
+		static_cast<int>(CURSOR_TIP_X), static_cast<int>(CURSOR_TIP_Y),
+		CURSOR_SCALE, 0.0,
+		cursorImg_, true);
 }

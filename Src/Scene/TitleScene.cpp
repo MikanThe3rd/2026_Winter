@@ -5,6 +5,7 @@
 #include "../Manager/SceneManager.h"
 #include "../Manager/ResourceManager.h"
 #include "../Manager/InputManager.h"
+#include"../Manager/RunManager.h"
 #include "../Manager/Camera.h"
 #include "../Object/Common/AnimationController.h"
 #include "../Object/SkyDome.h"
@@ -56,7 +57,8 @@ void TitleScene::Update(void)
 	InputManager& ins = InputManager::GetInstance();
 	if (ins.IsTrgDown(KEY_INPUT_SPACE))
 	{
-		SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::GAME);
+		RunManager::GetInstance().StartNewRun();
+		SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::MAP);
 	}
 
 	// ˜f¯‚Ì‰ñ“]

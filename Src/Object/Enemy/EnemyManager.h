@@ -12,14 +12,15 @@ class EnemyManager
 {
 public:
 
-	// スポーン設定ファイル(実行時のカレントディレクトリからの相対パス)
+	// スポーン設定ファイル(全戦闘分を1ファイルにまとめる)
 	static constexpr const char* SPAWN_FILE_PATH = "Data/CSV/EnemySpawn.csv";
 
 	EnemyManager(void);
 	~EnemyManager(void);
 
-	// 設定ファイルを読み込み、エネミーを生成する
-	void Init(void);
+	// 設定ファイルを読み込み、battleId に一致する行のエネミーを生成する
+	// battleId が空の場合は、全行を生成する(GameScene 単体起動のデバッグ用)
+	void Init(const std::string& battleId = "");
 
 	void Update(void);
 	void Draw(void);
@@ -45,7 +46,7 @@ private:
 	const Transform* target_;
 	std::vector<std::weak_ptr<Collider>> colliders_;
 
-	// CSV 読み込み
+	// CSV 読み込み(全行を返す。絞り込みは Init で行う)
 	bool LoadSpawnData(const std::string& path, std::vector<EnemySpawnData>& out);
 
 	// 種別名からエネミーを生成

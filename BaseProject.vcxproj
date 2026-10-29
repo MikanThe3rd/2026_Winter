@@ -19,6 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Scene\EventScene.cpp" />
+    <ClCompile Include="Src\Scene\MapScene.cpp" />
+    <ClCompile Include="Src\Manager\RunManager.cpp" />
     <ClCompile Include="Src\Scene\GameOverScene.cpp" />
     <ClCompile Include="Src\Scene\GameClearScene.cpp" />
     <ClCompile Include="Src\Object\Weapon\Claw.cpp" />
@@ -63,6 +66,9 @@
     <ClCompile Include="Src\Object\Weapon\WeaponManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Scene\EventScene.h" />
+    <ClInclude Include="Src\Scene\MapScene.h" />
+    <ClInclude Include="Src\Manager\RunManager.h" />
     <ClInclude Include="Src\Scene\GameOverScene.h" />
     <ClInclude Include="Src\Scene\GameClearScene.h" />
     <ClInclude Include="Src\Object\Weapon\Claw.h" />

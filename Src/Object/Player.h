@@ -95,6 +95,9 @@ public:
 	// 重なった場合の押しだし
 	void AddPos(const VECTOR& v);
 
+	void SetHp(int hp) { hp_ = hp < 1 ? 1 : (hp > hpMax_ ? hpMax_ : hp); }
+	void SetHpMax(int hpMax) { hpMax_ = hpMax < 1 ? 1 : hpMax; }
+
 private:
 
 	// アニメーション

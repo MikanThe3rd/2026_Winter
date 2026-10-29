@@ -16,5 +16,7 @@ struct EnemySpawnData
 	float stopRange = 80.0f;                      // 近付く限界距離
 	int hp = 3;                                   // ヒットポイント
 
-	std::string weapon = "";           
+	std::string weapon = "";                      // 武器名
+
+	std::string battle = "";                      // 所属する戦闘ID(Normal01 など)
 };

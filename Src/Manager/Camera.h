@@ -1,7 +1,9 @@
 ﻿#pragma once
 #include <DxLib.h>
 #include "../Common/Quaternion.h"
+
 class Transform;
+class ResourceManager;
 
 class Camera
 {
@@ -177,5 +179,19 @@ private:
 	// ヘルパー
 	static float SmoothStep(float t);
 	VECTOR OrbitLocalPos(float angleDeg, float dist, float height) const;
-};
 
+	// マウスカーソル画像
+	int cursorImg_;
+	int cursorPosX_;
+	int cursorPosY_;
+
+	// カーソル描画
+	void DrawCursor(void);
+
+	// カーソル設定
+	static constexpr float CURSOR_SCALE = 0.07f;       
+	static constexpr float CURSOR_TIP_X = 250.0f;      
+	static constexpr float CURSOR_TIP_Y = 155.0f;
+
+	ResourceManager& resMng_;
+};
