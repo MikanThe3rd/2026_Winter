@@ -1,14 +1,14 @@
-#include <algorithm>
+ï»¿#include <algorithm>
 #include "../Object/Player.h"
 #include "../Object/PlayerParam.h"
 #include "RunManager.h"
 
 namespace
 {
-	// í“¬ID(Data/CSV/EnemySpawn.csv ‚Ì battle —ñ‚Æˆê’v‚³‚¹‚é)
+	// æˆ¦é—˜ID(Data/CSV/EnemySpawn.csv ã® battle åˆ—ã¨ä¸€è‡´ã•ã›ã‚‹)
 	const char* NORMAL_IDS[] = { "Normal01", "Normal02" };
-	const char* ELITE_IDS[] = { "Elite01" };
-	const char* BOSS_IDS[] = { "Boss01" };
+	const char* ELITE_IDS[]  = { "Elite01" };
+	const char* BOSS_IDS[]   = { "Boss01" };
 }
 
 RunManager& RunManager::GetInstance(void)
@@ -35,6 +35,10 @@ void RunManager::StartNewRun(void)
 	currentIndex_ = 0;
 	path_.clear();
 
+	// å¼·åŒ–ã®ãƒªã‚»ãƒƒãƒˆ
+	speedRate_ = 1.0f;
+	std::fill(std::begin(weaponBonus_), std::end(weaponBonus_), 0);
+
 	const PlayerParam param = PlayerParam::Load();
 	hpMax_ = param.hp;
 	hp_ = param.hp;
@@ -50,12 +54,12 @@ int RunManager::Random(int n)
 
 RunManager::NODE_TYPE RunManager::DecideType(int floor)
 {
-	// ŒÅ’è”z’u: Å‰‚Íí“¬AÅŒã‚Íƒ{ƒXA‚»‚Ìè‘O‚Í‹xŒe(1‚Â‚¾‚¯)
+	// å›ºå®šé…ç½®: æœ€åˆã¯æˆ¦é—˜ã€æœ€å¾Œã¯ãƒœã‚¹ã€ãã®æ‰‹å‰ã¯ä¼‘æ†©(1ã¤ã ã‘)
 	if (floor == 0) return NODE_TYPE::BATTLE;
 	if (floor == FLOOR_NUM - 1) return NODE_TYPE::BOSS;
 	if (floor == FLOOR_NUM - 2) return NODE_TYPE::REST;
 
-	// ‚»‚êˆÈŠO‚ÌŠK‘w‚É‹xŒe‚Ío‚³‚È‚¢(í“¬E‹­“GEƒCƒxƒ“ƒg‚Ì‚İ)
+	// ãã‚Œä»¥å¤–ã®éšå±¤ã«ä¼‘æ†©ã¯å‡ºã•ãªã„(æˆ¦é—˜ãƒ»å¼·æ•µãƒ»ã‚¤ãƒ™ãƒ³ãƒˆã®ã¿)
 	const int r = Random(100);
 	if (r < 60) return NODE_TYPE::BATTLE;
 	if (r < 75) return floor >= 2 ? NODE_TYPE::ELITE : NODE_TYPE::BATTLE;
@@ -81,10 +85,10 @@ void RunManager::GenerateMap(void)
 {
 	map_.assign(FLOOR_NUM, {});
 
-	// ƒm[ƒh¶¬
+	// ãƒãƒ¼ãƒ‰ç”Ÿæˆ
 	for (int f = 0; f < FLOOR_NUM; ++f)
 	{
-		// ‹xŒe(ƒ{ƒX‘O)‚Æƒ{ƒX‚Í1ƒm[ƒh‚ÉŒÅ’èB‘¼‚ÌŠK‘w‚Í FLOOR_WIDTH ŒÂ
+		// ä¼‘æ†©(ãƒœã‚¹å‰)ã¨ãƒœã‚¹ã¯1ãƒãƒ¼ãƒ‰ã«å›ºå®šã€‚ä»–ã®éšå±¤ã¯ FLOOR_WIDTH å€‹
 		const int w = (f >= FLOOR_NUM - 2) ? 1 : FLOOR_WIDTH;
 		for (int i = 0; i < w; ++i)
 		{
@@ -97,7 +101,7 @@ void RunManager::GenerateMap(void)
 		}
 	}
 
-	// Ú‘±(Šeƒm[ƒh‚Í^ã + 50%‚ÅÎ‚ßã)
+	// æ¥ç¶š(å„ãƒãƒ¼ãƒ‰ã¯çœŸä¸Š + 50%ã§æ–œã‚ä¸Š)
 	for (int f = 0; f < FLOOR_NUM - 1; ++f)
 	{
 		const int nextW = GetFloorWidth(f + 1);
@@ -127,7 +131,7 @@ void RunManager::GenerateMap(void)
 			std::sort(n.next.begin(), n.next.end());
 		}
 
-		// ‚Ç‚±‚©‚ç‚à’H‚ê‚È‚¢ƒm[ƒh‚ğì‚ç‚È‚¢
+		// ã©ã“ã‹ã‚‰ã‚‚è¾¿ã‚Œãªã„ãƒãƒ¼ãƒ‰ã‚’ä½œã‚‰ãªã„
 		for (int k = 0; k < nextW; ++k)
 		{
 			if (!hasIncoming[k])
@@ -171,6 +175,7 @@ void RunManager::ApplyToPlayer(Player& player) const
 	if (!isRunning_) return;
 	player.SetHpMax(hpMax_);
 	player.SetHp(hp_);
+	player.SetSpeedRate(speedRate_);
 }
 
 void RunManager::StoreFromPlayer(const Player& player)
@@ -193,4 +198,37 @@ void RunManager::AddHpMax(int value)
 {
 	hpMax_ += value;
 	hp_ += value;
+}
+
+void RunManager::AddSpeedRate(float value)
+{
+	speedRate_ = (std::min)(SPEED_RATE_MAX, speedRate_ + value);
+}
+
+int RunManager::GetWeaponDamageBonus(WeaponManager::TYPE type) const
+{
+	return weaponBonus_[static_cast<int>(type)];
+}
+
+void RunManager::AddWeaponDamageBonus(WeaponManager::TYPE type, int value)
+{
+	weaponBonus_[static_cast<int>(type)] += value;
+}
+
+void RunManager::AddAllWeaponDamageBonus(int value)
+{
+	for (int& b : weaponBonus_)
+	{
+		b += value;
+	}
+}
+
+void RunManager::ApplyToWeapons(WeaponManager& manager) const
+{
+	if (!isRunning_) return;
+
+	for (int i = 0; i < static_cast<int>(WeaponManager::TYPE::MAX); ++i)
+	{
+		manager.SetDamageBonus(static_cast<WeaponManager::TYPE>(i), weaponBonus_[i]);
+	}
 }

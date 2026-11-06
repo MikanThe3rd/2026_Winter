@@ -25,6 +25,7 @@ public:
 		BATTLE_ICON_ELITE,
 		BATTLE_ICON_BOSS,
 		EVENT_ICON,
+		KABE,
 	};
 
 	// 明示的にインステンスを生成する

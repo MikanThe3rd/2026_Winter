@@ -30,6 +30,9 @@ public:
 	bool SwitchNext(void);
 	bool SwitchPrev(void);
 
+	// •Ší‚²‚Æ‚Ìƒ_ƒ[ƒW‰ÁZ(ƒ‰ƒ“’†‚Ì‹­‰»‚ğ”½‰f‚·‚é)
+	void SetDamageBonus(TYPE type, int bonus);
+
 	void SetDrawAll(bool drawAll) { drawAll_ = drawAll; }
 	bool IsDrawAll(void) const { return drawAll_; }
 

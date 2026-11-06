@@ -16,15 +16,16 @@ class Player : public ActorBase
 
 public:
 
-	// 移動速度・回転時間・ジャンプ力・HPは CSV(PlayerParam)から設定される
-
 	// ジャンプ受付時間
 	static constexpr float TIME_JUMP_IN = 0.5f;
 
-	// HPバー(プレイヤーの頭上に追従)
+	// HPバー
 	static constexpr int HP_BAR_WIDTH = 80;
 	static constexpr int HP_BAR_HEIGHT = 8;
-	static constexpr float HP_BAR_OFFSET_Y = 190.0f;   // 足元から頭上までの高さ
+	static constexpr float HP_BAR_OFFSET_Y = 190.0f;   
+
+	//回転のスムーズさ
+	static constexpr float ROT_SMOOTH = 15.0f;
 
 	// 状態
 	enum class STATE
@@ -36,7 +37,7 @@ public:
 		SPECIAL_ATTACK,
 	};
 
-	// アニメーション種別
+	// アニメーションタイプ
 	enum class ANIM_TYPE
 	{
 		IDLE,
@@ -71,7 +72,7 @@ public:
 	// 特殊攻撃中か
 	bool IsSpecialAttacking(void) const { return state_ == STATE::SPECIAL_ATTACK; }
 
-	// 攻撃開始からの経過時間(秒)
+	// 攻撃の時間取得
 	float GetAttackTime(void) const { return stepAttack_; }
 
 	// HP
@@ -79,13 +80,13 @@ public:
 	int GetHpMax(void) const { return hpMax_; }
 	bool IsAlive(void) const { return hp_ > 0; }
 
-	// ダメージを受ける
+	// ダメージ
 	void Damage(int damage);
 
-	// HPバーの描画(頭上に追従)。3D描画の後に呼ぶ
+	// HPバーの描画
 	void DrawHud(void);
 
-	/// 特殊攻撃の発生可否と、その対象の座標
+	// 特殊攻撃の発生可否と、その対象の座標
 	void SetSpecialAttack(bool isSpecial, const VECTOR& targetPos = { 0.0f, 0.0f, 0.0f })
 	{
 		isSpecialAttack_ = isSpecial;
@@ -98,9 +99,12 @@ public:
 	void SetHp(int hp) { hp_ = hp < 1 ? 1 : (hp > hpMax_ ? hpMax_ : hp); }
 	void SetHpMax(int hpMax) { hpMax_ = hpMax < 1 ? 1 : hpMax; }
 
+	// 移動速度の設定
+	void SetSpeedRate(float rate) { speedRate_ = rate < 0.1f ? 0.1f : rate; }
+
 private:
 
-	// アニメーション
+	// アニメーションコントローラー
 	std::unique_ptr<AnimationController> animationController_;
 
 	// 状態管理
@@ -125,7 +129,6 @@ private:
 	// 回転
 	Quaternion playerRotY_;
 	Quaternion goalQuaRot_;
-	float stepRotTime_;
 
 	// ジャンプ量
 	VECTOR jumpPow_;
@@ -150,6 +153,9 @@ private:
 	// ステータス(CSV から読み込み)
 	PlayerParam playerParam_;
 
+	// 移動速度
+	float speedRate_ = 1.0f;
+
 	// HP
 	int hp_;
 	int hpMax_;
@@ -170,14 +176,14 @@ private:
 	void ChangeStateBloodsucking(void);
 	void ChangeStateSpecialAttack(void);
 
-	// 更新ステップ
+	// 状態ごとの更新
 	void UpdateNone(void);
 	void UpdatePlay(void);
 	void UpdateAttack(void);
 	void UpdateBloodsucking(void);
 	void UpdateSpecialAttack(void);
-	
-	// 描画系
+
+	// 丸影の描画
 	void DrawShadow(void);
 
 	// 操作
@@ -190,7 +196,7 @@ private:
 	void SetGoalRotate(double rotRad);
 	void Rotate(void);
 
-	// 衝突判定
+	// 当たり判定
 	void Collision(void);
 	void CollisionGravity(void);
 	void CollisionCapsule(void);
@@ -198,6 +204,6 @@ private:
 	// 移動量の計算
 	void CalcGravityPow(void);
 
-	// 着地モーション終了
+	// 着地モーションの終了
 	bool IsEndLanding(void);
 };

@@ -44,6 +44,8 @@ void SceneManager::Init(void)
 
 	isSceneChanging_ = false;
 
+	isEnd_ = false;	
+
 	// デルタタイム
 	preTime_ = std::chrono::system_clock::now();
 
@@ -95,7 +97,6 @@ void SceneManager::Init3D(void)
 
 void SceneManager::Update(void)
 {
-
 	if (scene_ == nullptr)
 	{
 		return;
@@ -108,9 +109,16 @@ void SceneManager::Update(void)
 	preTime_ = nowTime;
 
 	fader_->Update();
+
 	if (isSceneChanging_)
 	{
+		// フェード中が最優先
 		Fade();
+	}
+	else if (!stackScene_.empty())
+	{
+		// メニュー等が積まれている間は、そちらだけ更新
+		stackScene_.top()->Update();
 	}
 	else
 	{
@@ -119,6 +127,25 @@ void SceneManager::Update(void)
 
 	// カメラ更新
 	camera_->Update();
+
+	// 予約されたPopをここで実行
+	if (popRequested_)
+	{
+		if (!stackScene_.empty())
+		{
+			delete stackScene_.top();
+			stackScene_.pop();
+		}
+		popRequested_ = false;
+	}
+
+	// スタックの一番上の終了フラグも確認する
+	if (scene_ != nullptr &&
+		(scene_->IsEnd() ||
+			(!stackScene_.empty() && stackScene_.top()->IsEnd())))
+	{
+		isEnd_ = true;
+	}
 }
 
 void SceneManager::Draw(void)
@@ -139,6 +166,11 @@ void SceneManager::Draw(void)
 	// 描画
 	scene_->Draw();
 
+	if (!stackScene_.empty()) 
+	{
+		stackScene_.top()->Draw();
+	}
+
 	// 主にポストエフェクト用
 	camera_->Draw();
 
@@ -155,6 +187,8 @@ void SceneManager::Draw(void)
 
 void SceneManager::Destroy(void)
 {
+	ClearStack();
+
 	DeleteGraph(mainScreen_);
 	delete instance_;
 }
@@ -191,20 +225,36 @@ int SceneManager::GetMainScreen(void)
 	return mainScreen_;
 }
 
-SceneManager::SceneManager(void)
+void SceneManager::PushScene(SceneBase* scene)
 {
-	sceneId_ = SCENE_ID::NONE;
-	waitSceneId_ = SCENE_ID::NONE;
+	scene->Init();
+	stackScene_.push(scene);
+}
 
-	scene_ = nullptr;
-	fader_ = nullptr;
+void SceneManager::PopScene(void)
+{
+	// ★変更: すぐdeleteせず、Update末尾で削除するよう予約だけする
+	if (stackScene_.empty())
+	{
+		return;
+	}
 
-	isSceneChanging_ = false;
+	popRequested_ = true;
+}
 
-	// デルタタイム
-	deltaTime_ = 1.0f / 60.0f;
-
-	camera_ = nullptr;
+SceneManager::SceneManager(void)
+	:
+	sceneId_(SCENE_ID::NONE),
+	waitSceneId_(SCENE_ID::NONE),
+	scene_(nullptr),
+	fader_(nullptr),
+	camera_(nullptr),
+	popRequested_(false),
+	isSceneChanging_(false),
+	deltaTime_(1.0f/60.0f),
+	isEnd_(false),
+	mainScreen_(0)
+{
 }
 
 void SceneManager::ResetDeltaTime(void)
@@ -215,6 +265,9 @@ void SceneManager::ResetDeltaTime(void)
 
 void SceneManager::DoChangeScene(SCENE_ID sceneId)
 {
+	// 積まれているシーン(メニュー等)を破棄
+	ClearStack();
+
 	// リソースの解放
 	ResourceManager::GetInstance().Release();
 
@@ -281,4 +334,14 @@ void SceneManager::Fade(void)
 		}
 		break;
 	}
+}
+
+void SceneManager::ClearStack(void)
+{
+	while (!stackScene_.empty())
+	{
+		delete stackScene_.top();
+		stackScene_.pop();
+	}
+	popRequested_ = false;
 }

@@ -8,6 +8,7 @@
 #include "../Manager/InputManager.h"
 #include "../Manager/EffectManager.h"
 #include"../Manager/RunManager.h"
+#include"../Scene/MenuScene.h"
 #include "../Object/Common/Capsule.h"
 #include "../Object/Common/Collider.h"
 #include "../Object/SkyDome.h"
@@ -57,6 +58,7 @@ void GameScene::Init(void)
 	// 武器(武器を変えるのはここだけ)
 	weaponManager_ = std::make_unique<WeaponManager>();
 	weaponManager_->Init();
+	run.ApplyToWeapons(*weaponManager_);
 	weaponManager_->SetDrawAll(true);
 
 	// ステージ
@@ -82,17 +84,20 @@ void GameScene::Init(void)
 
 void GameScene::Update(void)
 {
+	auto& ins = InputManager::GetInstance();
 
 	skyDome_->Update();
 
 	stage_->Update();
 
 	int mouse = GetMouseInput();
-	if (mouse & MOUSE_INPUT_LEFT)
+	if (mouse & MOUSE_INPUT_LEFT||
+		ins.IsPadBtnNew(InputManager::JOYPAD_NO::PAD1, InputManager::JOYPAD_BTN::R_TRIGGER))
 	{
 		weaponManager_->Switch(WeaponManager::TYPE::SWORD);   // 左クリック: 剣
 	}
-	else if (mouse & MOUSE_INPUT_RIGHT)
+	else if (mouse & MOUSE_INPUT_RIGHT ||
+		ins.IsPadBtnNew(InputManager::JOYPAD_NO::PAD1, InputManager::JOYPAD_BTN::L_TRIGGER))
 	{
 		weaponManager_->Switch(WeaponManager::TYPE::CLAW);    // 右クリック: 爪
 	}
@@ -126,6 +131,16 @@ void GameScene::Update(void)
 	CheckGameOver();
 
 	effectManager_->Update();
+
+
+	// シーン遷移
+	if (ins.IsTrgDown(KEY_INPUT_ESCAPE) ||
+		ins.IsPadBtnTrgDown(
+			InputManager::JOYPAD_NO::PAD1,
+			InputManager::JOYPAD_BTN::MENU))
+	{
+		SceneManager::GetInstance().PushScene(new MenuScene());
+	}
 }
 
 void GameScene::Draw(void)

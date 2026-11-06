@@ -44,6 +44,17 @@ public:
 		DOWN,
 		R_TRIGGER,
 		L_TRIGGER,
+		MENU,
+		MAX
+	};
+
+	// 十字方向(十字キー / 左スティックの傾き)
+	enum class JOYPAD_DIR
+	{
+		UP = 0,
+		DOWN,
+		LEFT,
+		RIGHT,
 		MAX
 	};
 
@@ -56,6 +67,9 @@ public:
 		bool IsNew[static_cast<int>(JOYPAD_BTN::MAX)];
 		bool IsTrgDown[static_cast<int>(JOYPAD_BTN::MAX)];
 		bool IsTrgUp[static_cast<int>(JOYPAD_BTN::MAX)];
+		bool DPad[static_cast<int>(JOYPAD_DIR::MAX)];      // 十字キー
+		bool DirOld[static_cast<int>(JOYPAD_DIR::MAX)];    // 十字キー or スティックの方向(前フレーム)
+		bool DirNew[static_cast<int>(JOYPAD_DIR::MAX)];    // 十字キー or スティックの方向(現フレーム)
 		int AKeyLX;
 		int AKeyLY;
 		int AKeyRX;
@@ -114,6 +128,22 @@ public:
 	bool IsPadBtnNew(JOYPAD_NO no, JOYPAD_BTN btn) const;
 	bool IsPadBtnTrgDown(JOYPAD_NO no, JOYPAD_BTN btn) const;
 	bool IsPadBtnTrgUp(JOYPAD_NO no, JOYPAD_BTN btn) const;
+
+	// 方向入力(十字キー、または左スティックを倒した状態)
+	bool IsPadDirNew(JOYPAD_NO no, JOYPAD_DIR dir) const;
+
+	// 方向入力が入った瞬間だけ true(メニュー操作用)
+	bool IsPadDirTrgDown(JOYPAD_NO no, JOYPAD_DIR dir) const;
+
+	// スティックの入力情報を取得する
+	Vector2 GetPadStickL(JOYPAD_NO no) const;
+	Vector2 GetPadStickR(JOYPAD_NO no) const;
+
+	static constexpr float STICK_MAX = 1000.0f;
+	static constexpr float STICK_DEAD_ZONE = 0.2f;
+
+	// スティックを「方向入力」とみなす傾き(STICK_MAX に対する割合)
+	static constexpr float STICK_DIR_RATE = 0.5f;
 
 private:
 

@@ -1,4 +1,4 @@
-#include <functional>
+ï»¿#include <functional>
 #include <DxLib.h>
 #include "../Application.h"
 #include "../Utility/AsoUtility.h"
@@ -9,11 +9,11 @@
 #include "../Object/SkyDome.h"
 #include "EventScene.h"
 
-// ---- ƒCƒxƒ“ƒg’è‹`(‚±‚±‚É‘«‚·‚¾‚¯‚Å‘‚â‚¹‚é) ----
+// ---- ã‚¤ãƒ™ãƒ³ãƒˆå®šç¾©(ã“ã“ã«è¶³ã™ã ã‘ã§å¢—ã‚„ã›ã‚‹) ----
 struct EventScene::Choice
 {
 	std::string label;
-	std::function<std::string(RunManager&)> effect;   // Œ‹‰ÊƒeƒLƒXƒg‚ğ•Ô‚·
+	std::function<std::string(RunManager&)> effect;   // çµæœãƒ†ã‚­ã‚¹ãƒˆã‚’è¿”ã™
 };
 
 struct EventScene::Event
@@ -23,10 +23,10 @@ struct EventScene::Event
 	std::vector<Choice> choices;
 };
 
-// ŒöŠJ‚µ‚È‚¢’è‹`‚ÍÃ“IŠÖ”‚É‚Ü‚Æ‚ß‚é
+// å…¬é–‹ã—ãªã„å®šç¾©ã¯é™çš„é–¢æ•°ã«ã¾ã¨ã‚ã‚‹
 namespace
 {
-	// ‘I‘ğˆ‚Ì•\¦ˆÊ’u(Draw ‚Æ“–‚½‚è”»’è‚Å‹¤’Ê)
+	// é¸æŠè‚¢ã®è¡¨ç¤ºä½ç½®(Draw ã¨å½“ãŸã‚Šåˆ¤å®šã§å…±é€š)
 	constexpr int CHOICE_Y0 = 280;
 	constexpr int CHOICE_STEP = 40;
 	constexpr int CHOICE_W = 520;
@@ -44,58 +44,101 @@ static std::vector<EventScene::Event> BuildEvents(RunManager::NODE_TYPE type)
 	if (type == RunManager::NODE_TYPE::REST)
 	{
 		list.push_back(E{
-			"–ì‰c’n",
-			"•°‚«‰Î‚Ì‚»‚Î‚Åˆê‘§‚Â‚¯‚éêŠ‚ğŒ©‚Â‚¯‚½B",
+			"é‡å–¶åœ°",
+			"ç„šãç«ã®ãã°ã§ä¸€æ¯ã¤ã‘ã‚‹å ´æ‰€ã‚’è¦‹ã¤ã‘ãŸã€‚",
 			{
-				C{ "‹x‚Ş(Å‘åHP‚Ì50%‰ñ•œ)", [](RunManager& r) {
+				C{ "ä¼‘ã‚€(æœ€å¤§HPã®50%å›å¾©)", [](RunManager& r) {
 					const int v = (r.GetHpMax() + 1) / 2;
 					r.Heal(v);
-					return "HP‚ª " + std::to_string(v) + " ‰ñ•œ‚µ‚½B"; } },
-				C{ "’b‚¦‚é(Å‘åHP+1)", [](RunManager& r) {
+					return "HPãŒ " + std::to_string(v) + " å›å¾©ã—ãŸã€‚"; } },
+				C{ "é›ãˆã‚‹(æœ€å¤§HP+1)", [](RunManager& r) {
 					r.AddHpMax(1);
-					return std::string("Å‘åHP‚ª 1 ‘‚¦‚½B"); } },
+					return std::string("æœ€å¤§HPãŒ 1 å¢—ãˆãŸã€‚"); } },
+				C{ "æ­¦å™¨ã‚’ç ”ã(å…¨æ­¦å™¨ã®ãƒ€ãƒ¡ãƒ¼ã‚¸+1)", [](RunManager& r) {
+					r.AddAllWeaponDamageBonus(1);
+					return std::string("æ­¦å™¨ãŒé‹­ããªã£ãŸã€‚å…¨æ­¦å™¨ã®ãƒ€ãƒ¡ãƒ¼ã‚¸ãŒ 1 ä¸ŠãŒã£ãŸã€‚"); } },
 			} });
 		return list;
 	}
 
 	list.push_back(E{
-		"Ã‚©‚Èò",
-		"Ÿ‚ñ‚¾…‚ğ‚½‚½‚¦‚½ò‚ª‚ ‚éB",
+		"é™ã‹ãªæ³‰",
+		"æ¾„ã‚“ã æ°´ã‚’ãŸãŸãˆãŸæ³‰ãŒã‚ã‚‹ã€‚",
 		{
-			C{ "…‚ğˆù‚Ş(HP30%‰ñ•œ)", [](RunManager& r) {
+			C{ "æ°´ã‚’é£²ã‚€(HP30%å›å¾©)", [](RunManager& r) {
 				const int v = (r.GetHpMax() * 3 + 9) / 10;
 				r.Heal(v);
-				return "HP‚ª " + std::to_string(v) + " ‰ñ•œ‚µ‚½B"; } },
-			C{ "—§‚¿‹‚é", [](RunManager&) {
-				return std::string("‰½‚à‹N‚«‚È‚©‚Á‚½B"); } },
+				return "HPãŒ " + std::to_string(v) + " å›å¾©ã—ãŸã€‚"; } },
+			C{ "ç«‹ã¡å»ã‚‹", [](RunManager&) {
+				return std::string("ä½•ã‚‚èµ·ããªã‹ã£ãŸã€‚"); } },
 		} });
 
 	list.push_back(E{
-		"ŒÃ‚¢Õ’d",
-		"ŒŒ‚Ì‚æ‚¤‚ÉÔ‚¢Õ’d‚¾B—Í‚ğ‹‚ß‚é‚È‚ç‘ã‚ª—v‚è‚»‚¤‚¾B",
+		"å¤ã„ç¥­å£‡",
+		"è¡€ã®ã‚ˆã†ã«èµ¤ã„ç¥­å£‡ã ã€‚åŠ›ã‚’æ±‚ã‚ã‚‹ãªã‚‰ä»£å„ŸãŒè¦ã‚Šãã†ã ã€‚",
 		{
-			C{ "ŒŒ‚ğ•ù‚°‚é(HP-2AÅ‘åHP+2)", [](RunManager& r) {
+			C{ "è¡€ã‚’æ§ã’ã‚‹(HP-2ã€æœ€å¤§HP+2)", [](RunManager& r) {
 				r.Damage(2);
 				r.AddHpMax(2);
-				return std::string("‘Ì‚É—Í‚ª‚İ‚È‚¬‚éccBÅ‘åHP‚ª 2 ‘‚¦‚½B"); } },
-			C{ "—§‚¿‹‚é", [](RunManager&) {
-				return std::string("Õ’d‚É”w‚ğŒü‚¯‚½B"); } },
+				return std::string("ä½“ã«åŠ›ãŒã¿ãªãã‚‹â€¦â€¦ã€‚æœ€å¤§HPãŒ 2 å¢—ãˆãŸã€‚"); } },
+			C{ "ç«‹ã¡å»ã‚‹", [](RunManager&) {
+				return std::string("ç¥­å£‡ã«èƒŒã‚’å‘ã‘ãŸã€‚"); } },
 		} });
 
 	list.push_back(E{
-		"‰ö‚µ‚¢–ò•r",
-		"“¹’[‚É–ò•r‚ª—‚¿‚Ä‚¢‚éB",
+		"æ€ªã—ã„è–¬ç“¶",
+		"é“ç«¯ã«è–¬ç“¶ãŒè½ã¡ã¦ã„ã‚‹ã€‚",
 		{
-			C{ "ˆù‚ñ‚Å‚İ‚é", [](RunManager& r) {
+			C{ "é£²ã‚“ã§ã¿ã‚‹", [](RunManager& r) {
 				if (r.Random(2) == 0)
 				{
 					r.Heal(r.GetHpMax());
-					return std::string("‘Ì‚ªŒy‚¢! HP‚ª‘S‰ñ•œ‚µ‚½B");
+					return std::string("ä½“ãŒè»½ã„! HPãŒå…¨å›å¾©ã—ãŸã€‚");
 				}
 				r.Damage(2);
-				return std::string("‚Ğ‚Ç‚¢–¡‚¾ccBHP‚ª 2 Œ¸‚Á‚½B"); } },
-			C{ "–³‹‚·‚é", [](RunManager&) {
-				return std::string("G‚ç‚È‚¢‚±‚Æ‚É‚µ‚½B"); } },
+				return std::string("ã²ã©ã„å‘³ã â€¦â€¦ã€‚HPãŒ 2 æ¸›ã£ãŸã€‚"); } },
+			C{ "ç„¡è¦–ã™ã‚‹", [](RunManager&) {
+				return std::string("è§¦ã‚‰ãªã„ã“ã¨ã«ã—ãŸã€‚"); } },
+		} });
+
+	list.push_back(E{
+		"å»ƒå¢Ÿã®é›å†¶å ´",
+		"ã¾ã ä½¿ãˆãã†ãªç‚‰ã¨é‡‘åºŠãŒæ®‹ã£ã¦ã„ã‚‹ã€‚æ­¦å™¨ã‚’ç ”ã„ã§ã„ã“ã†ã€‚",
+		{
+			C{ "å‰£ã‚’ç ”ã(å‰£ã®ãƒ€ãƒ¡ãƒ¼ã‚¸+1)", [](RunManager& r) {
+				r.AddWeaponDamageBonus(WeaponManager::TYPE::SWORD, 1);
+				return "å‰£ã®ãƒ€ãƒ¡ãƒ¼ã‚¸ãŒ 1 ä¸ŠãŒã£ãŸã€‚(å¼·åŒ– +" + std::to_string(
+					r.GetWeaponDamageBonus(WeaponManager::TYPE::SWORD)) + ")"; } },
+			C{ "çˆªã‚’ç ”ã(çˆªã®ãƒ€ãƒ¡ãƒ¼ã‚¸+1)", [](RunManager& r) {
+				r.AddWeaponDamageBonus(WeaponManager::TYPE::CLAW, 1);
+				return "çˆªã®ãƒ€ãƒ¡ãƒ¼ã‚¸ãŒ 1 ä¸ŠãŒã£ãŸã€‚(å¼·åŒ– +" + std::to_string(
+					r.GetWeaponDamageBonus(WeaponManager::TYPE::CLAW)) + ")"; } },
+			C{ "ç«‹ã¡å»ã‚‹", [](RunManager&) {
+				return std::string("æ™‚é–“ãŒãªã„ã€‚å…ˆã‚’æ€¥ã”ã†ã€‚"); } },
+		} });
+
+	list.push_back(E{
+		"é¢¨ã®ç¥ ",
+		"å°ã•ãªç¥ ã«ã€è»½ã‚„ã‹ãªé¢¨ãŒæ¸¦å·»ã„ã¦ã„ã‚‹ã€‚",
+		{
+			C{ "ç¥ˆã‚‹(ç§»å‹•é€Ÿåº¦+10%)", [](RunManager& r) {
+				r.AddSpeedRate(0.1f);
+				const int pct = static_cast<int>((r.GetSpeedRate() - 1.0f) * 100.0f + 0.5f);
+				return "ä½“ãŒè»½ããªã£ãŸã€‚ç§»å‹•é€Ÿåº¦ãŒä¸ŠãŒã£ãŸã€‚(ç¾åœ¨ +" + std::to_string(pct) + "%)"; } },
+			C{ "ç«‹ã¡å»ã‚‹", [](RunManager&) {
+				return std::string("é¢¨ãŒæ­¢ã‚“ã ã€‚"); } },
+		} });
+
+	list.push_back(E{
+		"è¡€ã®å¥‘ç´„",
+		"å›ãå£°ãŒã€è¡€ã¨å¼•ãæ›ãˆã«åŠ›ã‚’è²¸ã™ã¨è¨€ã£ã¦ã„ã‚‹ã€‚",
+		{
+			C{ "å¥‘ç´„ã™ã‚‹(HP-3ã€å…¨æ­¦å™¨ã®ãƒ€ãƒ¡ãƒ¼ã‚¸+1)", [](RunManager& r) {
+				r.Damage(3);
+				r.AddAllWeaponDamageBonus(1);
+				return std::string("è¡€ãŒç†±ã„â€¦â€¦ã€‚å…¨æ­¦å™¨ã®ãƒ€ãƒ¡ãƒ¼ã‚¸ãŒ 1 ä¸ŠãŒã£ãŸã€‚"); } },
+			C{ "æ–­ã‚‹", [](RunManager&) {
+				return std::string("å£°ã¯èã“ãˆãªããªã£ãŸã€‚"); } },
 		} });
 
 	return list;
@@ -125,7 +168,7 @@ void EventScene::Init(void)
 	cursor_ = 0;
 	phase_ = PHASE::SELECT;
 
-	// ‘O‚ÌƒV[ƒ“‚ÌƒNƒŠƒbƒN‚ğ‚¿‰z‚³‚È‚¢
+	// å‰ã®ã‚·ãƒ¼ãƒ³ã®ã‚¯ãƒªãƒƒã‚¯ã‚’æŒã¡è¶Šã•ãªã„
 	prevMouse_ = GetMouseInput();
 	GetMousePoint(&prevMouseX_, &prevMouseY_);
 }
@@ -137,7 +180,7 @@ void EventScene::Update(void)
 	InputManager& ins = InputManager::GetInstance();
 	RunManager& run = RunManager::GetInstance();
 
-	// ƒ}ƒEƒXó‘Ô
+	// ãƒã‚¦ã‚¹çŠ¶æ…‹
 	int mx, my;
 	GetMousePoint(&mx, &my);
 	const int mouse = GetMouseInput();
@@ -147,22 +190,29 @@ void EventScene::Update(void)
 	prevMouseX_ = mx;
 	prevMouseY_ = my;
 
+	// ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©(åå­—ã‚­ãƒ¼ / å·¦ã‚¹ãƒ†ã‚£ãƒƒã‚¯ / æ±ºå®šãƒœã‚¿ãƒ³)
+	constexpr auto PAD = InputManager::JOYPAD_NO::PAD1;
+	using DIR = InputManager::JOYPAD_DIR;
+	const bool padDown = ins.IsPadDirTrgDown(PAD, DIR::DOWN);
+	const bool padUp = ins.IsPadDirTrgDown(PAD, DIR::UP);
+	const bool padDecide = ins.IsPadBtnTrgDown(PAD, InputManager::JOYPAD_BTN::DOWN);   // A / Ã—
+
 	if (phase_ == PHASE::SELECT)
 	{
 		const auto events = BuildEvents(run.GetCurrentNode().type);
 		const auto& ev = events[eventIdx_];
 		const int n = static_cast<int>(ev.choices.size());
 
-		if (ins.IsTrgDown(KEY_INPUT_DOWN))
+		if (ins.IsTrgDown(KEY_INPUT_DOWN) || padDown)
 		{
 			cursor_ = (cursor_ + 1) % n;
 		}
-		if (ins.IsTrgDown(KEY_INPUT_UP))
+		if (ins.IsTrgDown(KEY_INPUT_UP) || padUp)
 		{
 			cursor_ = (cursor_ + n - 1) % n;
 		}
 
-		// ƒ}ƒEƒX‚ªæ‚Á‚Ä‚¢‚é‘I‘ğˆ
+		// ãƒã‚¦ã‚¹ãŒä¹—ã£ã¦ã„ã‚‹é¸æŠè‚¢
 		int hit = -1;
 		const int left = ChoiceLeft();
 		for (int i = 0; i < n; ++i)
@@ -180,7 +230,7 @@ void EventScene::Update(void)
 			cursor_ = hit;
 		}
 
-		bool decide = ins.IsTrgDown(KEY_INPUT_SPACE);
+		bool decide = ins.IsTrgDown(KEY_INPUT_SPACE) || padDecide;
 		if (click && hit >= 0)
 		{
 			cursor_ = hit;
@@ -195,8 +245,8 @@ void EventScene::Update(void)
 	}
 	else
 	{
-		// Œ‹‰Ê•\¦’†‚ÍASpace ‚©‰æ–Ê‚Ì‚Ç‚±‚ğƒNƒŠƒbƒN‚µ‚Ä‚ài‚Ş
-		if (ins.IsTrgDown(KEY_INPUT_SPACE) || click)
+		// çµæœè¡¨ç¤ºä¸­ã¯ã€Space ã‹ç”»é¢ã®ã©ã“ã‚’ã‚¯ãƒªãƒƒã‚¯ã—ã¦ã‚‚é€²ã‚€
+		if (ins.IsTrgDown(KEY_INPUT_SPACE) || click || padDecide)
 		{
 			SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::MAP);
 		}
@@ -234,12 +284,12 @@ void EventScene::Draw(void)
 				"%s %s", sel ? ">" : " ", ev.choices[i].label.c_str());
 		}
 		DrawString(20, Application::SCREEN_SIZE_Y - 30,
-			"ª « / ƒ}ƒEƒX : ‘I‘ğ    SPACE / ƒNƒŠƒbƒN : Œˆ’è", GetColor(200, 200, 200));
+			"â†‘ â†“ / ãƒã‚¦ã‚¹ / ãƒ‘ãƒƒãƒ‰ : é¸æŠ    SPACE / ã‚¯ãƒªãƒƒã‚¯ / ãƒ‘ãƒƒãƒ‰(Aãƒ»Ã—) : æ±ºå®š", GetColor(200, 200, 200));
 	}
 	else
 	{
 		DrawString(cx, 300, resultText_.c_str(), white);
 		DrawString(20, Application::SCREEN_SIZE_Y - 30,
-			"SPACE / ƒNƒŠƒbƒN : ƒ}ƒbƒv‚Ö", GetColor(200, 200, 200));
+			"SPACE / ã‚¯ãƒªãƒƒã‚¯ / ãƒ‘ãƒƒãƒ‰(Aãƒ»Ã—) : ãƒãƒƒãƒ—ã¸", GetColor(200, 200, 200));
 	}
 }

@@ -55,7 +55,8 @@ void TitleScene::Update(void)
 
 	// ƒV[ƒ“‘JˆÚ
 	InputManager& ins = InputManager::GetInstance();
-	if (ins.IsTrgDown(KEY_INPUT_SPACE))
+	if (ins.IsTrgDown(KEY_INPUT_SPACE)
+		|| (ins.IsPadBtnNew(InputManager::JOYPAD_NO::PAD1, InputManager::JOYPAD_BTN::DOWN)))
 	{
 		RunManager::GetInstance().StartNewRun();
 		SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::MAP);
@@ -67,6 +68,11 @@ void TitleScene::Update(void)
 	movePlanet_.Update();
 
 	skyDome_->Update();
+
+	if(ins.IsTrgDown(KEY_INPUT_ESCAPE))
+	{
+		isEnd_ = true;
+	}
 }
 
 void TitleScene::Draw(void)

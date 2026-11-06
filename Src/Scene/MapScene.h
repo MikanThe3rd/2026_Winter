@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <memory>
 #include <vector>
 #include "SceneBase.h"
@@ -6,8 +6,8 @@
 
 class SkyDome;
 
-// s‚«æ(ƒm[ƒh)‚ğ‘I‚Ôƒ}ƒbƒv‰æ–Ê
-// ¶‚©‚ç‰E‚Ö‰¡ƒXƒNƒ[ƒ‹‚µ‚È‚ª‚çi‚Ş
+// è¡Œãå…ˆ(ãƒãƒ¼ãƒ‰)ã‚’é¸ã¶ãƒãƒƒãƒ—ç”»é¢
+// å·¦ã‹ã‚‰å³ã¸æ¨ªã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ã—ãªãŒã‚‰é€²ã‚€
 class MapScene : public SceneBase
 {
 public:
@@ -21,38 +21,38 @@ public:
 
 private:
 
-	// ”wŒi
+	// èƒŒæ™¯
 	Transform spaceDomeTran_;
 	std::unique_ptr<SkyDome> skyDome_;
 
-	// ‘I‘ğ‰Â”\ƒm[ƒh(index)‚ÆƒJ[ƒ\ƒ‹ˆÊ’u
+	// é¸æŠå¯èƒ½ãƒãƒ¼ãƒ‰(index)ã¨ã‚«ãƒ¼ã‚½ãƒ«ä½ç½®
 	std::vector<int> selectable_;
 	int cursor_;
 
-	// ‘I‘ğˆ‚ª•À‚ñ‚Å‚¢‚éŠK‘w(Œˆ’èŒã‚ÉŒ»İ’n‚ªi‚ñ‚Å‚àA•`‰æ‚ª‚¸‚ê‚È‚¢‚æ‚¤•Û)
+	// é¸æŠè‚¢ãŒä¸¦ã‚“ã§ã„ã‚‹éšå±¤(æ±ºå®šå¾Œã«ç¾åœ¨åœ°ãŒé€²ã‚“ã§ã‚‚ã€æç”»ãŒãšã‚Œãªã„ã‚ˆã†ä¿æŒ)
 	int selectFloor_;
 
-	// ƒm[ƒhí•Ê‚²‚Æ‚ÌƒAƒCƒRƒ“‰æ‘œ(RunManager::NODE_TYPE ‚Ì‡B–¢İ’è‚Í -1)
+	// ãƒãƒ¼ãƒ‰ç¨®åˆ¥ã”ã¨ã®ã‚¢ã‚¤ã‚³ãƒ³ç”»åƒ(RunManager::NODE_TYPE ã®é †ã€‚æœªè¨­å®šã¯ -1)
 	static constexpr int ICON_NUM = 5;
 	int imgIcon_[ICON_NUM];
 
-	// ƒ}ƒEƒX(ƒNƒŠƒbƒN‚ÌŒŸo‚Æƒzƒo[—p)
+	// ãƒã‚¦ã‚¹(ã‚¯ãƒªãƒƒã‚¯ã®æ¤œå‡ºã¨ãƒ›ãƒãƒ¼ç”¨)
 	int prevMouse_;
 	int prevMouseX_;
 	int prevMouseY_;
 
-	// ƒ}ƒEƒXÀ•W‚É‚ ‚é‘I‘ğˆ(selectable_ ‚Ì“Yš)B‚È‚¯‚ê‚Î -1
+	// ãƒã‚¦ã‚¹åº§æ¨™ã«ã‚ã‚‹é¸æŠè‚¢(selectable_ ã®æ·»å­—)ã€‚ãªã‘ã‚Œã° -1
 	int HitTest(int mx, int my) const;
 
-	// ‘I‘ğ’†‚Ìƒm[ƒh‚ÉŒˆ’è‚µ‚Ä‘JˆÚ‚·‚é
+	// é¸æŠä¸­ã®ãƒãƒ¼ãƒ‰ã«æ±ºå®šã—ã¦é·ç§»ã™ã‚‹
 	void Decide(void);
 
-	// ‰¡ƒXƒNƒ[ƒ‹—Ê(ƒ[ƒ‹ƒhÀ•W ¨ ‰æ–ÊÀ•W‚Ì·)
+	// æ¨ªã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«é‡(ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™ â†’ ç”»é¢åº§æ¨™ã®å·®)
 	float scrollX_;
 
-	// w’è‚ÌŠK‘w‚ğ‰æ–Ê¶Šñ‚è‚É’u‚­‚½‚ß‚ÌƒXƒNƒ[ƒ‹—Ê
+	// æŒ‡å®šã®éšå±¤ã‚’ç”»é¢å·¦å¯„ã‚Šã«ç½®ããŸã‚ã®ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«é‡
 	float CalcScroll(int focusFloor) const;
 
-	// ƒm[ƒh‚Ì‰æ–ÊÀ•W
+	// ãƒãƒ¼ãƒ‰ã®ç”»é¢åº§æ¨™
 	void GetNodePos(int floor, int index, int& x, int& y) const;
 };

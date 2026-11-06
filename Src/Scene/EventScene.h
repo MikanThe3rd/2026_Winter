@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <memory>
 #include <string>
 #include <vector>
@@ -7,7 +7,7 @@
 
 class SkyDome;
 
-// ƒCƒxƒ“ƒg/‹xŒeƒm[ƒh‚Å•\¦‚·‚é‘I‘ğˆ‰æ–Ê
+// ã‚¤ãƒ™ãƒ³ãƒˆ/ä¼‘æ†©ãƒãƒ¼ãƒ‰ã§è¡¨ç¤ºã™ã‚‹é¸æŠè‚¢ç”»é¢
 class EventScene : public SceneBase
 {
 public:
@@ -15,7 +15,7 @@ public:
 	EventScene(void);
 	~EventScene(void);
 
-	// ‘I‘ğˆ‚ÆƒCƒxƒ“ƒg(’è‹`‚Í EventScene.cpp)
+	// é¸æŠè‚¢ã¨ã‚¤ãƒ™ãƒ³ãƒˆ(å®šç¾©ã¯ EventScene.cpp)
 	struct Choice;
 	struct Event;
 
@@ -35,7 +35,7 @@ private:
 	int cursor_;
 	std::string resultText_;
 
-	// ƒ}ƒEƒX(ƒNƒŠƒbƒN‚ÌŒŸo‚Æƒzƒo[—p)
+	// ãƒã‚¦ã‚¹(ã‚¯ãƒªãƒƒã‚¯ã®æ¤œå‡ºã¨ãƒ›ãƒãƒ¼ç”¨)
 	int prevMouse_;
 	int prevMouseX_;
 	int prevMouseY_;

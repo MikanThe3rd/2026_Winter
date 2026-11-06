@@ -1,24 +1,25 @@
-#pragma once
+ï»¿#pragma once
 #include <vector>
 #include <string>
 #include <random>
+#include "../Object/Weapon/WeaponManager.h"
 
 class Player;
 
-// 1‰ñ‚Ì–`Œ¯(ƒ‰ƒ“)‚Ìó‘Ô‚ğƒV[ƒ“‚ğ‚Ü‚½‚¢‚Å•Û‚·‚é
-// ƒ}ƒbƒv\‘¢EŒ»İ’nEƒvƒŒƒCƒ„[‚ÌHP‚È‚Ç
+// 1å›ã®å†’é™º(ãƒ©ãƒ³)ã®çŠ¶æ…‹ã‚’ã‚·ãƒ¼ãƒ³ã‚’ã¾ãŸã„ã§ä¿æŒã™ã‚‹
+// ãƒãƒƒãƒ—æ§‹é€ ãƒ»ç¾åœ¨åœ°ãƒ»ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®HPãªã©
 class RunManager
 {
 public:
 
-	// ƒm[ƒhí•Ê
+	// ãƒãƒ¼ãƒ‰ç¨®åˆ¥
 	enum class NODE_TYPE
 	{
-		BATTLE,   // ’Êíí“¬
-		ELITE,    // ‹­“G
-		EVENT,    // ƒCƒxƒ“ƒg
-		REST,     // ‹xŒe
-		BOSS,     // ƒ{ƒX
+		BATTLE,   // é€šå¸¸æˆ¦é—˜
+		ELITE,    // å¼·æ•µ
+		EVENT,    // ã‚¤ãƒ™ãƒ³ãƒˆ
+		REST,     // ä¼‘æ†©
+		BOSS,     // ãƒœã‚¹
 	};
 
 	struct MapNode
@@ -26,58 +27,71 @@ public:
 		NODE_TYPE type = NODE_TYPE::BATTLE;
 		int floor = 0;
 		int index = 0;
-		std::vector<int> next;        // Ÿ‚ÌŠK‘w‚Åi‚ß‚éƒm[ƒh‚Ì index
-		std::string battleId;         // í“¬ƒm[ƒh‚Ìí“¬ID(EnemySpawn.csv ‚Ì battle —ñ)
+		std::vector<int> next;        // æ¬¡ã®éšå±¤ã§é€²ã‚ã‚‹ãƒãƒ¼ãƒ‰ã® index
+		std::string battleId;         // æˆ¦é—˜ãƒãƒ¼ãƒ‰ã®æˆ¦é—˜ID(EnemySpawn.csv ã® battle åˆ—)
 	};
 
-	// ŠK‘w”‚Æ1ŠK‘w‚ ‚½‚è‚ÌÅ‘åƒm[ƒh”(ÅIŠK‚Íƒ{ƒX1‚Â)
+	// éšå±¤æ•°ã¨1éšå±¤ã‚ãŸã‚Šã®æœ€å¤§ãƒãƒ¼ãƒ‰æ•°(æœ€çµ‚éšã¯ãƒœã‚¹1ã¤)
 	static constexpr int FLOOR_NUM = 10;
 	static constexpr int FLOOR_WIDTH = 3;
 
 	static RunManager& GetInstance(void);
 
-	// V‚µ‚¢–`Œ¯‚ğn‚ß‚é(ƒ}ƒbƒv¶¬EHP‰Šú‰»)
+	// æ–°ã—ã„å†’é™ºã‚’å§‹ã‚ã‚‹(ãƒãƒƒãƒ—ç”Ÿæˆãƒ»HPåˆæœŸåŒ–)
 	void StartNewRun(void);
 
-	// –`Œ¯’†‚©(GameScene ’P‘Ì‹N“®‚ÌƒfƒoƒbƒO‘Îô)
+	// å†’é™ºä¸­ã‹(GameScene å˜ä½“èµ·å‹•ã®ãƒ‡ãƒãƒƒã‚°å¯¾ç­–)
 	bool IsRunning(void) const { return isRunning_; }
 
-	// ---- ƒ}ƒbƒv ----
+	// ---- ãƒãƒƒãƒ— ----
 	const std::vector<std::vector<MapNode>>& GetMap(void) const { return map_; }
 	int GetFloorWidth(int floor) const { return static_cast<int>(map_[floor].size()); }
 
-	// Œ»İ’n(‚Ü‚¾‰½‚à‘I‚ñ‚Å‚¢‚È‚¯‚ê‚Î floor = -1)
+	// ç¾åœ¨åœ°(ã¾ã ä½•ã‚‚é¸ã‚“ã§ã„ãªã‘ã‚Œã° floor = -1)
 	int GetCurrentFloor(void) const { return currentFloor_; }
 	int GetCurrentIndex(void) const { return currentIndex_; }
 	const MapNode& GetCurrentNode(void) const { return map_[currentFloor_][currentIndex_]; }
 	bool HasCurrentNode(void) const { return currentFloor_ >= 0; }
 
-	// ‚¢‚Ü‘I‚×‚éƒm[ƒh‚Ì index ˆê——
+	// ã„ã¾é¸ã¹ã‚‹ãƒãƒ¼ãƒ‰ã® index ä¸€è¦§
 	std::vector<int> GetSelectableIndices(void) const;
 
-	// Ÿ‚ÌŠK‘w‚Ìƒm[ƒh‚ğ‘I‚ñ‚Åi‚Ş
+	// æ¬¡ã®éšå±¤ã®ãƒãƒ¼ãƒ‰ã‚’é¸ã‚“ã§é€²ã‚€
 	void SelectNode(int index);
 
-	// ’H‚Á‚Ä‚«‚½Œo˜H(‚»‚ÌŠK‘w‚Å‘I‚ñ‚¾ƒm[ƒh‚Ì indexB–¢“’B‚È‚ç -1)
+	// è¾¿ã£ã¦ããŸçµŒè·¯(ãã®éšå±¤ã§é¸ã‚“ã ãƒãƒ¼ãƒ‰ã® indexã€‚æœªåˆ°é”ãªã‚‰ -1)
 	int GetPathIndex(int floor) const
 	{
 		return (floor >= 0 && floor < static_cast<int>(path_.size())) ? path_[floor] : -1;
 	}
 
-	// Œ»İƒm[ƒh‚ªƒ{ƒX‚©
+	// ç¾åœ¨ãƒãƒ¼ãƒ‰ãŒãƒœã‚¹ã‹
 	bool IsBossNode(void) const;
 
-	// ---- ƒvƒŒƒCƒ„[ó‘Ô‚Ìˆø‚«Œp‚¬ ----
-	void ApplyToPlayer(Player& player) const;        // í“¬ŠJn
-	void StoreFromPlayer(const Player& player);      // í“¬I—¹
+	// ---- ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼çŠ¶æ…‹ã®å¼•ãç¶™ã ----
+	void ApplyToPlayer(Player& player) const;        // æˆ¦é—˜é–‹å§‹æ™‚
+	void StoreFromPlayer(const Player& player);      // æˆ¦é—˜çµ‚äº†æ™‚
 
 	int GetHp(void) const { return hp_; }
 	int GetHpMax(void) const { return hpMax_; }
 	void Heal(int value);
-	void Damage(int value);       // €‚È‚È‚¢(Å’áHP1)
+	void Damage(int value);       // æ­»ãªãªã„(æœ€ä½HP1)
 	void AddHpMax(int value);
 
-	// —” [0, n)
+	// ---- å¼·åŒ–(ã‚¤ãƒ™ãƒ³ãƒˆãªã©ã§åŠ ç®—ã€‚ãƒ©ãƒ³ä¸­ãšã£ã¨å¼•ãç¶™ã) ----
+	static constexpr float SPEED_RATE_MAX = 2.0f;    // ç§»å‹•é€Ÿåº¦å€ç‡ã®ä¸Šé™
+
+	float GetSpeedRate(void) const { return speedRate_; }
+	void AddSpeedRate(float value);                  // 0.1f ã§ +10%
+
+	int GetWeaponDamageBonus(WeaponManager::TYPE type) const;
+	void AddWeaponDamageBonus(WeaponManager::TYPE type, int value);
+	void AddAllWeaponDamageBonus(int value);
+
+	// æˆ¦é—˜é–‹å§‹æ™‚ã«ã€æ­¦å™¨ã¸ãƒ€ãƒ¡ãƒ¼ã‚¸åŠ ç®—ã‚’åæ˜ ã™ã‚‹
+	void ApplyToWeapons(WeaponManager& manager) const;
+
+	// ä¹±æ•° [0, n)
 	int Random(int n);
 
 private:
@@ -99,6 +113,10 @@ private:
 
 	int hp_;
 	int hpMax_;
+
+	// å¼·åŒ–
+	float speedRate_ = 1.0f;
+	int weaponBonus_[static_cast<int>(WeaponManager::TYPE::MAX)] = {};
 
 	std::mt19937 rng_;
 };

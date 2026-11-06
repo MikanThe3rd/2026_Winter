@@ -52,6 +52,8 @@ void InputManager::Init(void)
 
 	InputManager::GetInstance().Add(KEY_INPUT_LALT);
 
+	InputManager::GetInstance().Add(KEY_INPUT_ESCAPE);
+
 	InputManager::MouseInfo info;
 
 	// 左クリック
@@ -177,6 +179,10 @@ bool InputManager::IsTrgMouseRight(void) const
 InputManager::InputManager(void)
 {
 	mouseInput_ = -1;
+	for (auto& p : padInfos_)
+	{
+		p = JOYPAD_IN_STATE();
+	}
 }
 
 const InputManager::Info& InputManager::Find(int key) const
@@ -251,6 +257,26 @@ void InputManager::SetJPadInState(JOYPAD_NO jpNo)
 
 	}
 
+	// 方向入力(十字キー、または左スティックを一定以上倒した状態)
+	const int th = static_cast<int>(STICK_MAX * STICK_DIR_RATE);
+	const int up = static_cast<int>(JOYPAD_DIR::UP);
+	const int down = static_cast<int>(JOYPAD_DIR::DOWN);
+	const int left = static_cast<int>(JOYPAD_DIR::LEFT);
+	const int right = static_cast<int>(JOYPAD_DIR::RIGHT);
+
+	bool dirNow[static_cast<int>(JOYPAD_DIR::MAX)];
+	dirNow[up] = stateNew.DPad[up] || stateNew.AKeyLY < -th;      // DInput は上が負
+	dirNow[down] = stateNew.DPad[down] || stateNew.AKeyLY > th;
+	dirNow[left] = stateNew.DPad[left] || stateNew.AKeyLX < -th;
+	dirNow[right] = stateNew.DPad[right] || stateNew.AKeyLX > th;
+
+	for (int i = 0; i < static_cast<int>(JOYPAD_DIR::MAX); i++)
+	{
+		stateNow.DPad[i] = stateNew.DPad[i];
+		stateNow.DirOld[i] = stateNow.DirNew[i];
+		stateNow.DirNew[i] = dirNow[i];
+	}
+
 }
 
 InputManager::JOYPAD_IN_STATE InputManager::GetJPadInputState(JOYPAD_NO no)
@@ -298,6 +324,9 @@ InputManager::JOYPAD_IN_STATE InputManager::GetJPadInputState(JOYPAD_NO no)
 		idx = static_cast<int>(JOYPAD_BTN::L_TRIGGER);
 		ret.ButtonsNew[idx] = x.LeftTrigger; // L_TRIGGER
 
+		idx = static_cast<int>(JOYPAD_BTN::MENU);
+		ret.ButtonsNew[idx] = d.Buttons[7];
+
 		// 左スティック
 		ret.AKeyLX = d.X;
 		ret.AKeyLY = d.Y;
@@ -305,6 +334,12 @@ InputManager::JOYPAD_IN_STATE InputManager::GetJPadInputState(JOYPAD_NO no)
 		// 右スティック
 		ret.AKeyRX = d.Rx;
 		ret.AKeyRY = d.Ry;
+
+		// 十字キー
+		ret.DPad[static_cast<int>(JOYPAD_DIR::UP)] = x.Buttons[XINPUT_BUTTON_DPAD_UP] != 0;
+		ret.DPad[static_cast<int>(JOYPAD_DIR::DOWN)] = x.Buttons[XINPUT_BUTTON_DPAD_DOWN] != 0;
+		ret.DPad[static_cast<int>(JOYPAD_DIR::LEFT)] = x.Buttons[XINPUT_BUTTON_DPAD_LEFT] != 0;
+		ret.DPad[static_cast<int>(JOYPAD_DIR::RIGHT)] = x.Buttons[XINPUT_BUTTON_DPAD_RIGHT] != 0;
 
 	}
 		break;
@@ -340,6 +375,16 @@ InputManager::JOYPAD_IN_STATE InputManager::GetJPadInputState(JOYPAD_NO no)
 		ret.AKeyRX = d.Z;
 		ret.AKeyRY = d.Rz;
 
+		// 十字キー(ハットスイッチ: 0=上, 9000=右, 18000=下, 27000=左。斜めは間の値)
+		const unsigned int pov = d.POV[0];
+		if (pov <= 36000)
+		{
+			ret.DPad[static_cast<int>(JOYPAD_DIR::UP)] = (pov <= 4500 || pov >= 31500);
+			ret.DPad[static_cast<int>(JOYPAD_DIR::RIGHT)] = (pov >= 4500 && pov <= 13500);
+			ret.DPad[static_cast<int>(JOYPAD_DIR::DOWN)] = (pov >= 13500 && pov <= 22500);
+			ret.DPad[static_cast<int>(JOYPAD_DIR::LEFT)] = (pov >= 22500 && pov <= 31500);
+		}
+
 	}
 		break;
 	case InputManager::JOYPAD_TYPE::SWITCH_JOY_CON_L:
@@ -369,6 +414,36 @@ bool InputManager::IsPadBtnTrgDown(JOYPAD_NO no, JOYPAD_BTN btn) const
 bool InputManager::IsPadBtnTrgUp(JOYPAD_NO no, JOYPAD_BTN btn) const
 {
 	return padInfos_[static_cast<int>(no)].IsTrgUp[static_cast<int>(btn)];
+}
+
+bool InputManager::IsPadDirNew(JOYPAD_NO no, JOYPAD_DIR dir) const
+{
+	return padInfos_[static_cast<int>(no)].DirNew[static_cast<int>(dir)];
+}
+
+bool InputManager::IsPadDirTrgDown(JOYPAD_NO no, JOYPAD_DIR dir) const
+{
+	const auto& pad = padInfos_[static_cast<int>(no)];
+	const int i = static_cast<int>(dir);
+	return pad.DirNew[i] && !pad.DirOld[i];
+}
+
+Vector2 InputManager::GetPadStickL(JOYPAD_NO no) const
+{
+	const auto& pad = padInfos_[static_cast<int>(no)];
+	Vector2 ret;
+	ret.x = pad.AKeyLX;
+	ret.y = pad.AKeyLY;
+	return ret;
+}
+
+Vector2 InputManager::GetPadStickR(JOYPAD_NO no) const
+{
+	const auto& pad = padInfos_[static_cast<int>(no)];
+	Vector2 ret;
+	ret.x = pad.AKeyRX;
+	ret.y = pad.AKeyRY;
+	return ret;
 }
 
 

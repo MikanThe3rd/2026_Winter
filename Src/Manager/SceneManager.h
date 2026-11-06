@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <chrono>
+#include <stack>
 
 // 推奨しませんが、どうしても使いたい方は
 #define mainCamera SceneManager::GetInstance().GetCamera()
@@ -25,7 +26,7 @@ public:
 		GAME_OVER,
 		GAME_CLEAR,
 	};
-	
+
 	// インスタンスの生成
 	static void CreateInstance(void);
 
@@ -52,7 +53,14 @@ public:
 	// カメラの取得
 	Camera& GetCamera(void);
 
-     int GetMainScreen(void);
+	int GetMainScreen(void);
+
+	bool isEnd_;
+
+	bool IsEnd(void) { return isEnd_; }
+
+	void PushScene(SceneBase* scene);
+	void PopScene(void);
 
 private:
 
@@ -72,6 +80,11 @@ private:
 	// カメラ
 	std::unique_ptr<Camera> camera_;
 
+	std::stack<SceneBase*> stackScene_;
+
+	// ★変更: PopSceneの予約フラグ(Update中に自分自身をdeleteしないため)
+	bool popRequested_;
+
 	// シーン遷移中判定
 	bool isSceneChanging_;
 
@@ -81,7 +94,7 @@ private:
 
 	//メインスクリーン
 	int mainScreen_;
-	
+
 	// デフォルトコンストラクタをprivateにして、
 	// 外部から生成できない様にする
 	SceneManager(void);
@@ -98,5 +111,7 @@ private:
 
 	// フェード
 	void Fade(void);
+
+	void ClearStack(void);
 
 };

@@ -127,7 +127,35 @@ VECTOR Camera::GetForward(void) const
 
 void Camera::RotGamePad(bool isLimit)
 {
+	// カメラの回転量
+	const float ROT_POW_DEG = 1.0f;
+	const float ROT_POW_RAD = ROT_POW_DEG * DX_PI_F / 180.0f;
 
+	auto& ins = InputManager::GetInstance();
+
+	// 接続されているゲームパッド１の情報を取得
+	InputManager::JOYPAD_IN_STATE padState =
+		ins.GetJPadInputState(InputManager::JOYPAD_NO::PAD1);
+
+	// 右スティックの傾き
+	Vector2 dir =
+		ins.GetPadStickR(InputManager::JOYPAD_NO::PAD1);
+
+	// 右スティック左右の傾き
+	angles_.y += dir.x * ROT_POW_RAD * MOUSE_SENSITIVITY;
+
+	// 右スティック上下の傾き
+	angles_.x += dir.y * -ROT_POW_RAD * MOUSE_SENSITIVITY;
+
+	// 角度制限
+	if (isLimit && angles_.x < -LIMIT_X_DW_RAD)
+	{
+		angles_.x = -LIMIT_X_DW_RAD;
+	}
+	if (isLimit && angles_.x > LIMIT_X_UP_RAD)
+	{
+		angles_.x = LIMIT_X_UP_RAD;
+	}
 }
 
 void Camera::RotMouse(bool isLimit)
@@ -243,7 +271,12 @@ void Camera::ProcessRot(bool isLimit)
 	auto& ins = InputManager::GetInstance();
 
 	// 左Altを押していない間はマウスが中央に固定
-	if (!ins.IsNew(KEY_INPUT_LALT))
+	if (GetJoypadNum() == 1)
+	{
+		SetMouseDispFlag(TRUE);
+		RotGamePad(isLimit);
+	}
+	else if (!ins.IsNew(KEY_INPUT_LALT))
 	{
 		SetMouseDispFlag(FALSE);
 		RotMouse(isLimit);
@@ -458,7 +491,7 @@ void Camera::DrawCursor(void)
 
 	GetMousePoint(&cursorPosX_, &cursorPosY_);
 
-	// 画像の先端(CURSOR_TIP)がマウス座標に来るように描画
+	// 画像の先端がマウス座標に来るように描画
 	DrawRotaGraph2(
 		cursorPosX_, cursorPosY_,
 		static_cast<int>(CURSOR_TIP_X), static_cast<int>(CURSOR_TIP_Y),

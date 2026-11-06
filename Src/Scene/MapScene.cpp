@@ -1,4 +1,4 @@
-#include <cmath>
+ï»¿#include <cmath>
 #include <DxLib.h>
 #include "../Application.h"
 #include "../Utility/AsoUtility.h"
@@ -13,13 +13,13 @@
 namespace
 {
 	constexpr int NODE_RADIUS = 36;
-	constexpr float ICON_SCALE = 0.8f;     
-	constexpr int FLOOR_GAP_X = 240;       // ŠK‘w‚²‚Æ‚Ì‰¡ŠÔŠu(‰æ–Ê‚Éû‚Ü‚ç‚È‚­‚Ä‚æ‚¢)
-	constexpr int NODE_GAP_Y = 130;        // “¯‚¶ŠK‘w‚Ìƒm[ƒh“¯m‚ÌcŠÔŠu
-	constexpr float ANCHOR_RATE = 0.25f;   // Œ»İ’n‚ğ‰æ–Ê‚Ì¶‚©‚ç‰½Š„‚É’u‚­‚©
-	constexpr float SCROLL_SPEED = 6.0f;   // ƒXƒNƒ[ƒ‹‚Ì’Ç]‚Ì‘¬‚³
+	constexpr float ICON_SCALE = 0.4f;     // 200px ã®ç”»åƒã‚’ 80px ã§è¡¨ç¤º
+	constexpr int FLOOR_GAP_X = 240;       // éšå±¤ã”ã¨ã®æ¨ªé–“éš”(ç”»é¢ã«åã¾ã‚‰ãªãã¦ã‚ˆã„)
+	constexpr int NODE_GAP_Y = 130;        // åŒã˜éšå±¤ã®ãƒãƒ¼ãƒ‰åŒå£«ã®ç¸¦é–“éš”
+	constexpr float ANCHOR_RATE = 0.25f;   // ç¾åœ¨åœ°ã‚’ç”»é¢ã®å·¦ã‹ã‚‰ä½•å‰²ã«ç½®ãã‹
+	constexpr float SCROLL_SPEED = 6.0f;   // ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ã®è¿½å¾“ã®é€Ÿã•
 
-	// í•Ê‚²‚Æ‚ÌF(rate ‚ÅˆÃ‚­‚Å‚«‚é)
+	// ç¨®åˆ¥ã”ã¨ã®è‰²(rate ã§æš—ãã§ãã‚‹)
 	unsigned int NodeColor(RunManager::NODE_TYPE t, float rate = 1.0f)
 	{
 		int r = 255, g = 255, b = 255;
@@ -35,7 +35,7 @@ namespace
 			static_cast<int>(g * rate), static_cast<int>(b * rate));
 	}
 
-	// ƒm[ƒhí•Ê‚É‘Î‰‚·‚éƒAƒCƒRƒ“‰æ‘œ‚Ìƒnƒ“ƒhƒ‹(‹xŒe‚Í–¢—pˆÓ‚Ì‚½‚ß -1)
+	// ãƒãƒ¼ãƒ‰ç¨®åˆ¥ã«å¯¾å¿œã™ã‚‹ã‚¢ã‚¤ã‚³ãƒ³ç”»åƒã®ãƒãƒ³ãƒ‰ãƒ«(ä¼‘æ†©ã¯æœªç”¨æ„ã®ãŸã‚ -1)
 	int LoadNodeIcon(ResourceManager& res, RunManager::NODE_TYPE t)
 	{
 		using SRC = ResourceManager::SRC;
@@ -53,11 +53,11 @@ namespace
 	{
 		switch (t)
 		{
-		case RunManager::NODE_TYPE::BATTLE: return "í";
-		case RunManager::NODE_TYPE::ELITE:  return "‹­";
+		case RunManager::NODE_TYPE::BATTLE: return "æˆ¦";
+		case RunManager::NODE_TYPE::ELITE:  return "å¼·";
 		case RunManager::NODE_TYPE::EVENT:  return "?";
-		case RunManager::NODE_TYPE::REST:   return "‹x";
-		case RunManager::NODE_TYPE::BOSS:   return "‰¤";
+		case RunManager::NODE_TYPE::REST:   return "ä¼‘";
+		case RunManager::NODE_TYPE::BOSS:   return "ç‹";
 		}
 		return "";
 	}
@@ -66,11 +66,11 @@ namespace
 	{
 		switch (t)
 		{
-		case RunManager::NODE_TYPE::BATTLE: return "í“¬";
-		case RunManager::NODE_TYPE::ELITE:  return "‹­“G";
-		case RunManager::NODE_TYPE::EVENT:  return "ƒCƒxƒ“ƒg";
-		case RunManager::NODE_TYPE::REST:   return "‹xŒe";
-		case RunManager::NODE_TYPE::BOSS:   return "ƒ{ƒX";
+		case RunManager::NODE_TYPE::BATTLE: return "æˆ¦é—˜";
+		case RunManager::NODE_TYPE::ELITE:  return "å¼·æ•µ";
+		case RunManager::NODE_TYPE::EVENT:  return "ã‚¤ãƒ™ãƒ³ãƒˆ";
+		case RunManager::NODE_TYPE::REST:   return "ä¼‘æ†©";
+		case RunManager::NODE_TYPE::BOSS:   return "ãƒœã‚¹";
 		}
 		return "";
 	}
@@ -88,7 +88,7 @@ MapScene::MapScene(void)
 
 MapScene::~MapScene(void)
 {
-	// ‰æ‘œ‚Í ResourceManager ‚ªŠÇ—‚·‚é(ƒV[ƒ“Ø‘Ö‚É Release ‚³‚ê‚é)
+	// ç”»åƒã¯ ResourceManager ãŒç®¡ç†ã™ã‚‹(ã‚·ãƒ¼ãƒ³åˆ‡æ›¿æ™‚ã« Release ã•ã‚Œã‚‹)
 }
 
 float MapScene::CalcScroll(int focusFloor) const
@@ -103,7 +103,7 @@ void MapScene::Init(void)
 	skyDome_ = std::make_unique<SkyDome>(spaceDomeTran_);
 	skyDome_->Init();
 
-	// ƒm[ƒh‚ÌƒAƒCƒRƒ“‰æ‘œ
+	// ãƒãƒ¼ãƒ‰ã®ã‚¢ã‚¤ã‚³ãƒ³ç”»åƒ
 	for (int i = 0; i < ICON_NUM; ++i)
 	{
 		imgIcon_[i] = LoadNodeIcon(resMng_, static_cast<RunManager::NODE_TYPE>(i));
@@ -116,11 +116,11 @@ void MapScene::Init(void)
 	selectFloor_ = run.GetCurrentFloor() + 1;
 	cursor_ = 0;
 
-	// ‘O‚ÌƒV[ƒ“‚ÌƒNƒŠƒbƒN‚ğ‚¿‰z‚³‚È‚¢
+	// å‰ã®ã‚·ãƒ¼ãƒ³ã®ã‚¯ãƒªãƒƒã‚¯ã‚’æŒã¡è¶Šã•ãªã„
 	prevMouse_ = GetMouseInput();
 	GetMousePoint(&prevMouseX_, &prevMouseY_);
 
-	// Œ»İ’n‚ÌŠK‘w‚ğŠî€‚É‚·‚éB1‚Â‘O‚ÌˆÊ’u‚©‚çŠŠ‚è‚Ü‚¹‚Äui‚ñ‚¾Š´v‚ğo‚·
+	// ç¾åœ¨åœ°ã®éšå±¤ã‚’åŸºæº–ã«ã™ã‚‹ã€‚1ã¤å‰ã®ä½ç½®ã‹ã‚‰æ»‘ã‚Šè¾¼ã¾ã›ã¦ã€Œé€²ã‚“ã æ„Ÿã€ã‚’å‡ºã™
 	const int focus = (selectFloor_ - 1 > 0) ? selectFloor_ - 1 : 0;
 	const int prev = (focus - 1 > 0) ? focus - 1 : 0;
 	scrollX_ = CalcScroll(selectFloor_ >= 2 ? prev : focus);
@@ -130,13 +130,13 @@ void MapScene::Update(void)
 {
 	skyDome_->Update();
 
-	// Œ»İ’n‚ÉŒü‚©‚Á‚Ä‚È‚ß‚ç‚©‚ÉƒXƒNƒ[ƒ‹
+	// ç¾åœ¨åœ°ã«å‘ã‹ã£ã¦ãªã‚ã‚‰ã‹ã«ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«
 	const int focus = (selectFloor_ - 1 > 0) ? selectFloor_ - 1 : 0;
 	const float dt = SceneManager::GetInstance().GetDeltaTime();
 	const float t = 1.0f - std::exp(-SCROLL_SPEED * dt);
 	scrollX_ += (CalcScroll(focus) - scrollX_) * t;
 
-	// ƒ}ƒEƒXó‘Ô
+	// ãƒã‚¦ã‚¹çŠ¶æ…‹
 	int mx, my;
 	GetMousePoint(&mx, &my);
 	const int mouse = GetMouseInput();
@@ -154,24 +154,31 @@ void MapScene::Update(void)
 	InputManager& ins = InputManager::GetInstance();
 	const int n = static_cast<int>(selectable_.size());
 
-	// ‘I‘ğˆ‚Íc‚É•À‚Ô‚Ì‚ÅAª«‚Å‘I‚Ô(ã‚Ìƒm[ƒh‚Ù‚Ç index ‚ª¬‚³‚¢)
-	if (ins.IsTrgDown(KEY_INPUT_DOWN))
+	// ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©(åå­—ã‚­ãƒ¼ / å·¦ã‚¹ãƒ†ã‚£ãƒƒã‚¯ / æ±ºå®šãƒœã‚¿ãƒ³)
+	constexpr auto PAD = InputManager::JOYPAD_NO::PAD1;
+	using DIR = InputManager::JOYPAD_DIR;
+	const bool padDown = ins.IsPadDirTrgDown(PAD, DIR::DOWN);
+	const bool padUp = ins.IsPadDirTrgDown(PAD, DIR::UP);
+	const bool padDecide = ins.IsPadBtnTrgDown(PAD, InputManager::JOYPAD_BTN::DOWN);   // A / Ã—
+
+	// é¸æŠè‚¢ã¯ç¸¦ã«ä¸¦ã¶ã®ã§ã€â†‘â†“ã§é¸ã¶(ä¸Šã®ãƒãƒ¼ãƒ‰ã»ã© index ãŒå°ã•ã„)
+	if (ins.IsTrgDown(KEY_INPUT_DOWN) || padDown)
 	{
 		cursor_ = (cursor_ + 1) % n;
 	}
-	if (ins.IsTrgDown(KEY_INPUT_UP))
+	if (ins.IsTrgDown(KEY_INPUT_UP) || padUp)
 	{
 		cursor_ = (cursor_ + n - 1) % n;
 	}
 
-	// ƒ}ƒEƒX: “®‚©‚µ‚½‚Æ‚«‚¾‚¯ƒzƒo[‚ÅƒJ[ƒ\ƒ‹‚ğ’Ç](ƒL[‘€ì‚ğ×–‚‚µ‚È‚¢)
+	// ãƒã‚¦ã‚¹: å‹•ã‹ã—ãŸã¨ãã ã‘ãƒ›ãƒãƒ¼ã§ã‚«ãƒ¼ã‚½ãƒ«ã‚’è¿½å¾“(ã‚­ãƒ¼æ“ä½œã‚’é‚ªé­”ã—ãªã„)
 	const int hit = HitTest(mx, my);
 	if (hit >= 0 && moved)
 	{
 		cursor_ = hit;
 	}
 
-	bool decide = ins.IsTrgDown(KEY_INPUT_SPACE);
+	bool decide = ins.IsTrgDown(KEY_INPUT_SPACE) || padDecide;
 	if (click && hit >= 0)
 	{
 		cursor_ = hit;
@@ -225,7 +232,7 @@ void MapScene::GetNodePos(int floor, int index, int& x, int& y) const
 	const RunManager& run = RunManager::GetInstance();
 	const int w = run.GetFloorWidth(floor);
 
-	// ¶‚©‚ç‰E‚ÖisB‰æ–Ê•‚Éû‚ß‚¸AƒXƒNƒ[ƒ‹—Ê‚¾‚¯‚¸‚ç‚·
+	// å·¦ã‹ã‚‰å³ã¸é€²è¡Œã€‚ç”»é¢å¹…ã«åã‚ãšã€ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«é‡ã ã‘ãšã‚‰ã™
 	x = static_cast<int>(floor * FLOOR_GAP_X - scrollX_);
 	y = Application::SCREEN_SIZE_Y / 2
 		+ static_cast<int>((index - (w - 1) * 0.5f) * NODE_GAP_Y);
@@ -241,7 +248,7 @@ void MapScene::Draw(void)
 	const int curI = run.GetCurrentIndex();
 	const int screenW = Application::SCREEN_SIZE_X;
 
-	// ‰æ–ÊŠO‚ÌŠK‘w‚Í•`‚©‚È‚¢
+	// ç”»é¢å¤–ã®éšå±¤ã¯æã‹ãªã„
 	auto isVisible = [&](int floor)
 		{
 			int x, y;
@@ -249,7 +256,7 @@ void MapScene::Draw(void)
 			return x > -NODE_RADIUS * 3 && x < screenW + NODE_RADIUS * 3;
 		};
 
-	// Ú‘±ü
+	// æ¥ç¶šç·š
 	for (const auto& floor : map)
 	{
 		for (const auto& n : floor)
@@ -276,7 +283,7 @@ void MapScene::Draw(void)
 				}
 				else if (onPath && run.GetPathIndex(n.floor + 1) == k)
 				{
-					col = GetColor(255, 220, 100);   // ’H‚Á‚Ä‚«‚½“¹
+					col = GetColor(255, 220, 100);   // è¾¿ã£ã¦ããŸé“
 					width = 3;
 				}
 				DrawLine(x1, y1, x2, y2, col, width);
@@ -284,7 +291,7 @@ void MapScene::Draw(void)
 		}
 	}
 
-	// ƒm[ƒh
+	// ãƒãƒ¼ãƒ‰
 	for (const auto& floor : map)
 	{
 		if (!isVisible(floor[0].floor)) continue;
@@ -294,7 +301,7 @@ void MapScene::Draw(void)
 			int x, y;
 			GetNodePos(n.floor, n.index, x, y);
 
-			// ’Ê‰ßÏ‚İ‚Å‘I‚Î‚È‚©‚Á‚½ƒm[ƒh‚ÍˆÃ‚­‚·‚é
+			// é€šéæ¸ˆã¿ã§é¸ã°ãªã‹ã£ãŸãƒãƒ¼ãƒ‰ã¯æš—ãã™ã‚‹
 			const bool passedUnused = (n.floor <= curF
 				&& run.GetPathIndex(n.floor) != n.index);
 			const float rate = passedUnused ? 0.3f : 1.0f;
@@ -302,7 +309,7 @@ void MapScene::Draw(void)
 			const int icon = imgIcon_[static_cast<int>(n.type)];
 			if (icon != -1)
 			{
-				// ‰æ‘œƒAƒCƒRƒ“(’Ê‰ßÏ‚İ‚Å‘I‚Î‚È‚©‚Á‚½‚à‚Ì‚ÍˆÃ‚­)
+				// ç”»åƒã‚¢ã‚¤ã‚³ãƒ³(é€šéæ¸ˆã¿ã§é¸ã°ãªã‹ã£ãŸã‚‚ã®ã¯æš—ã)
 				const int b = static_cast<int>(255 * rate);
 				SetDrawBright(b, b, b);
 				DrawRotaGraph(x, y, ICON_SCALE, 0.0, icon, true);
@@ -310,14 +317,14 @@ void MapScene::Draw(void)
 			}
 			else
 			{
-				// ‰æ‘œ‚ª‚È‚¢í•Ê(‹xŒe‚È‚Ç)‚Í]—ˆ‚Ì‰~‚Å•`‚­
+				// ç”»åƒãŒãªã„ç¨®åˆ¥(ä¼‘æ†©ãªã©)ã¯å¾“æ¥ã®å††ã§æã
 				DrawCircle(x, y, NODE_RADIUS, NodeColor(n.type, rate), true);
 				DrawCircle(x, y, NODE_RADIUS, GetColor(20, 20, 20), false, 2);
 				DrawString(x - 8, y - 8, NodeMark(n.type),
 					passedUnused ? GetColor(120, 120, 120) : GetColor(255, 255, 255));
 			}
 
-			// Œ»İ’n / ’Ê‰ßÏ‚İ
+			// ç¾åœ¨åœ° / é€šéæ¸ˆã¿
 			if (n.floor == curF && n.index == curI)
 			{
 				DrawCircle(x, y, NODE_RADIUS + 5, GetColor(255, 255, 0), false, 3);
@@ -329,7 +336,7 @@ void MapScene::Draw(void)
 		}
 	}
 
-	// ‘I‘ğ‰Â”\ƒm[ƒh‚Ì‹­’²‚ÆƒJ[ƒ\ƒ‹
+	// é¸æŠå¯èƒ½ãƒãƒ¼ãƒ‰ã®å¼·èª¿ã¨ã‚«ãƒ¼ã‚½ãƒ«
 	for (size_t i = 0; i < selectable_.size(); ++i)
 	{
 		int x, y;
@@ -342,14 +349,14 @@ void MapScene::Draw(void)
 
 			const auto& node = map[selectFloor_][selectable_[i]];
 			DrawFormatString(screenW / 2 - 60, 30,
-				GetColor(255, 255, 255), "Ÿ‚Ìs‚«æ: %s", NodeName(node.type));
+				GetColor(255, 255, 255), "æ¬¡ã®è¡Œãå…ˆ: %s", NodeName(node.type));
 		}
 	}
 
 	DrawFormatString(20, 20, GetColor(255, 255, 255),
 		"HP %d / %d", run.GetHp(), run.GetHpMax());
 	DrawFormatString(screenW - 140, 20, GetColor(255, 255, 255),
-		"ŠK‘w %d / %d", (curF + 1 > 0 ? curF + 1 : 0), RunManager::FLOOR_NUM);
+		"éšå±¤ %d / %d", (curF + 1 > 0 ? curF + 1 : 0), RunManager::FLOOR_NUM);
 	DrawString(20, Application::SCREEN_SIZE_Y - 30,
-		"ª « / ƒ}ƒEƒX : ‘I‘ğ    SPACE / ƒNƒŠƒbƒN : Œˆ’è", GetColor(200, 200, 200));
+		"â†‘ â†“ / ãƒã‚¦ã‚¹ / ãƒ‘ãƒƒãƒ‰ : é¸æŠ    SPACE / ã‚¯ãƒªãƒƒã‚¯ / ãƒ‘ãƒƒãƒ‰(Aãƒ»Ã—) : æ±ºå®š", GetColor(200, 200, 200));
 }

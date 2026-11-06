@@ -24,7 +24,6 @@ Player::Player(void)
 
 	playerRotY_ = Quaternion();
 	goalQuaRot_ = Quaternion();
-	stepRotTime_ = 0.0f;
 
 	// ジャンプ関連
 	jumpPow_ = AsoUtility::VECTOR_ZERO;
@@ -524,13 +523,42 @@ void Player::ProcessMove(void)
 		dir = cameraRot.GetLeft();
 	}
 
+	if (AsoUtility::EqualsVZero(dir))
+	{
+		Vector2 stick = ins.GetPadStickL(InputManager::JOYPAD_NO::PAD1);
+		float sx = static_cast<float>(stick.x) / InputManager::STICK_MAX;
+		float sy = -static_cast<float>(stick.y) / InputManager::STICK_MAX;
+
+		float len = sqrtf(sx * sx + sy * sy);
+		if (len >= InputManager::STICK_DEAD_ZONE)
+		{
+			// 斜めで 1 を超えないようにする
+			if (len > 1.0f)
+			{
+				sx /= len;
+				sy /= len;
+			}
+
+			// カメラ基準の移動方向(倒し具合で速度も変わる)
+			dir = VAdd(VScale(cameraRot.GetForward(), sy),
+				VScale(cameraRot.GetRight(), sx));
+
+			// 前方を 0 として、スティックを倒した向きの角度
+			rotRad = atan2((double)sx, (double)sy);
+		}
+	}
+
+	// ダッシュ判定(Shift または LT)
+	bool isRun = ins.IsNew(KEY_INPUT_LSHIFT)
+		|| ins.IsPadBtnNew(InputManager::JOYPAD_NO::PAD1, InputManager::JOYPAD_BTN::LEFT);
+
 	if (!AsoUtility::EqualsVZero(dir) && (isJump_ || IsEndLanding())) {
 
 		// 移動処理
-		speed_ = playerParam_.speedMove;
-		if (ins.IsNew(KEY_INPUT_LSHIFT))
+		speed_ = playerParam_.speedMove * speedRate_;
+		if (isRun)
 		{
-			speed_ = playerParam_.speedRun;
+			speed_ = playerParam_.speedRun * speedRate_;
 		}
 		moveDir_ = dir;
 		movePow_ = VScale(dir, speed_);
@@ -541,7 +569,7 @@ void Player::ProcessMove(void)
 		if (!isJump_ && IsEndLanding())
 		{
 			// アニメーション
-			if (ins.IsNew(KEY_INPUT_LSHIFT))
+			if (isRun)
 			{
 				animationController_->Play((int)ANIM_TYPE::FAST_RUN);
 			}
@@ -567,7 +595,8 @@ void Player::ProcessJump(void)
 	auto& ins = InputManager::GetInstance();
 
 	// ジャンプ開始（地面にいる状態で押した瞬間のみ）
-	if (ins.IsTrgDown(KEY_INPUT_SPACE) && !isJump_ && IsEndLanding())
+	if ((ins.IsTrgDown(KEY_INPUT_SPACE) && !isJump_ && IsEndLanding())
+		|| (ins.IsPadBtnNew(InputManager::JOYPAD_NO::PAD1, InputManager::JOYPAD_BTN::DOWN)&& !isJump_ && IsEndLanding()))
 	{
 		// アニメーション
 		animationController_->Play((int)ANIM_TYPE::JUMP, true, 13.0f, 25.0f);
@@ -585,7 +614,8 @@ void Player::ProcessAttack(void)
 	auto& ins = InputManager::GetInstance();
 
 	// 地面にいるときだけ攻撃開始
-	if (ins.IsClickMouseLeft() && !isJump_ && IsEndLanding())
+	if (ins.IsClickMouseLeft() && !isJump_ && IsEndLanding()
+		|| ins.IsPadBtnNew(InputManager::JOYPAD_NO::PAD1, InputManager::JOYPAD_BTN::R_TRIGGER) && !isJump_ && IsEndLanding())
 	{
 		ChangeState(STATE::ATTACK);
 	}
@@ -595,7 +625,8 @@ void Player::ProcessAttackBloodsucking(void)
 {
 	auto& ins = InputManager::GetInstance();
 
-	if (ins.IsClickMouseRight() && !isJump_ && IsEndLanding())
+	if (ins.IsClickMouseRight() && !isJump_ && IsEndLanding()||
+		(ins.IsPadBtnNew(InputManager::JOYPAD_NO::PAD1, InputManager::JOYPAD_BTN::L_TRIGGER) && !isJump_ && IsEndLanding()))
 	{
 		// 近くにスタン中の敵がいれば特殊攻撃、いなければ通常の爪攻撃
 		if (isSpecialAttack_)
@@ -612,28 +643,16 @@ void Player::ProcessAttackBloodsucking(void)
 void Player::SetGoalRotate(double rotRad)
 {
 	VECTOR cameraRot = mainCamera.GetAngles();
-	Quaternion axis = Quaternion::AngleAxis((double)cameraRot.y + rotRad, AsoUtility::AXIS_Y);
-
-	// 現在設定されている回転との角度差を取る
-	double angleDiff = Quaternion::Angle(axis, goalQuaRot_);
-
-	// しきい値
-	if (angleDiff > 0.1)
-	{
-		stepRotTime_ = playerParam_.timeRot;
-	}
-
-	goalQuaRot_ = axis;
+	goalQuaRot_ = Quaternion::AngleAxis((double)cameraRot.y + rotRad, AsoUtility::AXIS_Y);
 
 }
 
 void Player::Rotate(void)
 {
-	stepRotTime_ -= scnMng_.GetDeltaTime();
+	// フレームレートに依存しない追従率(0~1)
+	float rate = 1.0f - expf(-ROT_SMOOTH * scnMng_.GetDeltaTime());
 
-	// 回転の球面補間
-	playerRotY_ = Quaternion::Slerp(
-		playerRotY_, goalQuaRot_, (playerParam_.timeRot - stepRotTime_) / playerParam_.timeRot);
+	playerRotY_ = Quaternion::Slerp(playerRotY_, goalQuaRot_, rate);
 }
 
 void Player::Collision(void)

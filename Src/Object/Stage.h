@@ -8,6 +8,7 @@ class ResourceManager;
 class Planet;
 class Player;
 class EnemyManager;
+class Transform;
 
 class Stage
 {
@@ -80,4 +81,6 @@ private:
 
 	// 敵にアクティブな惑星のコライダを設定
 	void SetColliderToEnemies(void);
+
+	Transform transform_;
 };

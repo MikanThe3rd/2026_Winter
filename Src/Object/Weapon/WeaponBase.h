@@ -62,6 +62,10 @@ public:
 	// 今、攻撃判定が有効か
 	bool IsHitActive(void) const { return hitActive_; }
 
+	// ラン中の強化によるダメージ加算(基本ダメージ + 加算分)
+	void SetDamageBonus(int bonus) { damageBonus_ = bonus; }
+	int GetDamage(void) const { return param_.damage + damageBonus_; }
+
 	// 判定用カプセル
 	const Capsule& GetCapsule(void) const { return *capsule_; }
 
@@ -92,6 +96,9 @@ protected:
 private:
 
 	bool hitActive_;
+
+	// 強化によるダメージ加算
+	int damageBonus_ = 0;
 
 	// 今の一振りで当て済みの敵
 	std::unordered_set<const EnemyBase*> hitEnemies_;

@@ -21,6 +21,10 @@ public:
 	// •`‰æˆ—
 	virtual void Draw(void) = 0;
 
+	bool isEnd_;
+
+	bool IsEnd(void) { return isEnd_; }
+
 protected:
 
 	// ƒŠƒ\[ƒXŠÇ—

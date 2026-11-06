@@ -76,6 +76,16 @@ void WeaponManager::Draw(void)
 
 }
 
+void WeaponManager::SetDamageBonus(TYPE type, int bonus)
+{
+	const int i = static_cast<int>(type);
+	if (i < 0 || i >= static_cast<int>(weapons_.size()))
+	{
+		return;
+	}
+	weapons_[i]->SetDamageBonus(bonus);
+}
+
 bool WeaponManager::Switch(TYPE type)
 {
 	const int next = static_cast<int>(type);
