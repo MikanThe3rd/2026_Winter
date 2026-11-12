@@ -55,6 +55,10 @@ void ResourceManager::Init(void)
 	res = std::make_unique<RES>(RES_T::IMG, PATH_IMG + "Event.png");
 	resourcesMap_.emplace(SRC::EVENT_ICON, std::move(res));
 
+	//休憩のアイコン
+	res = std::make_unique<RES>(RES_T::IMG, PATH_IMG + "Rest.png");
+	resourcesMap_.emplace(SRC::REST_ICON, std::move(res));
+
 	// プレイヤー
 	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "Player/vampire.mv1");
 	resourcesMap_.emplace(SRC::PLAYER, std::move(res));

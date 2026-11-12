@@ -7,6 +7,7 @@
 #include "../Manager/Camera.h"
 #include "../Manager/RunManager.h"
 #include "../Object/SkyDome.h"
+#include"../Scene/MenuScene.h"
 #include "EventScene.h"
 
 // ---- イベント定義(ここに足すだけで増やせる) ----
@@ -118,28 +119,28 @@ static std::vector<EventScene::Event> BuildEvents(RunManager::NODE_TYPE type)
 		} });
 
 	list.push_back(E{
-		"風の祠",
-		"小さな祠に、軽やかな風が渦巻いている。",
-		{
+		  "風の祠",
+		  "小さな祠に、軽やかな風が渦巻いている。",
+		  {
 			C{ "祈る(移動速度+10%)", [](RunManager& r) {
-				r.AddSpeedRate(0.1f);
-				const int pct = static_cast<int>((r.GetSpeedRate() - 1.0f) * 100.0f + 0.5f);
-				return "体が軽くなった。移動速度が上がった。(現在 +" + std::to_string(pct) + "%)"; } },
+			  r.AddSpeedRate(0.1f);
+			  const int pct = static_cast<int>((r.GetSpeedRate() - 1.0f) * 100.0f + 0.5f);
+			  return "体が軽くなった。移動速度が上がった。(現在 +" + std::to_string(pct) + "%)"; } },
 			C{ "立ち去る", [](RunManager&) {
-				return std::string("風が止んだ。"); } },
-		} });
+			  return std::string("風が止んだ。"); } },
+		  } });
 
 	list.push_back(E{
-		"血の契約",
-		"囁く声が、血と引き換えに力を貸すと言っている。",
-		{
+			"血の契約",
+			"囁く声が、血と引き換えに力を貸すと言っている。",
+			{
 			C{ "契約する(HP-3、全武器のダメージ+1)", [](RunManager& r) {
 				r.Damage(3);
 				r.AddAllWeaponDamageBonus(1);
 				return std::string("血が熱い……。全武器のダメージが 1 上がった。"); } },
 			C{ "断る", [](RunManager&) {
 				return std::string("声は聞こえなくなった。"); } },
-		} });
+			} });
 
 	return list;
 }
@@ -251,6 +252,15 @@ void EventScene::Update(void)
 			SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::MAP);
 		}
 	}
+
+	// シーン遷移
+	if (ins.IsTrgDown(KEY_INPUT_ESCAPE) ||
+		ins.IsPadBtnTrgDown(
+			InputManager::JOYPAD_NO::PAD1,
+			InputManager::JOYPAD_BTN::MENU))
+	{
+		SceneManager::GetInstance().PushScene(new MenuScene());
+	}
 }
 
 void EventScene::Draw(void)
@@ -283,13 +293,9 @@ void EventScene::Draw(void)
 				sel ? GetColor(0, 255, 255) : GetColor(180, 180, 180),
 				"%s %s", sel ? ">" : " ", ev.choices[i].label.c_str());
 		}
-		DrawString(20, Application::SCREEN_SIZE_Y - 30,
-			"↑ ↓ / マウス / パッド : 選択    SPACE / クリック / パッド(A・×) : 決定", GetColor(200, 200, 200));
 	}
 	else
 	{
 		DrawString(cx, 300, resultText_.c_str(), white);
-		DrawString(20, Application::SCREEN_SIZE_Y - 30,
-			"SPACE / クリック / パッド(A・×) : マップへ", GetColor(200, 200, 200));
 	}
 }

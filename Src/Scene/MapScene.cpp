@@ -7,13 +7,14 @@
 #include "../Manager/Camera.h"
 #include "../Manager/RunManager.h"
 #include "../Manager/ResourceManager.h"
+#include"../Scene/MenuScene.h"
 #include "../Object/SkyDome.h"
 #include "MapScene.h"
 
 namespace
 {
 	constexpr int NODE_RADIUS = 36;
-	constexpr float ICON_SCALE = 0.4f;     // 200px の画像を 80px で表示
+	constexpr float ICON_SCALE = 0.6f;     
 	constexpr int FLOOR_GAP_X = 240;       // 階層ごとの横間隔(画面に収まらなくてよい)
 	constexpr int NODE_GAP_Y = 130;        // 同じ階層のノード同士の縦間隔
 	constexpr float ANCHOR_RATE = 0.25f;   // 現在地を画面の左から何割に置くか
@@ -44,6 +45,7 @@ namespace
 		case RunManager::NODE_TYPE::BATTLE: return res.Load(SRC::BATTLE_ICON_NORMAL).handleId_;
 		case RunManager::NODE_TYPE::ELITE:  return res.Load(SRC::BATTLE_ICON_ELITE).handleId_;
 		case RunManager::NODE_TYPE::EVENT:  return res.Load(SRC::EVENT_ICON).handleId_;
+		case RunManager::NODE_TYPE::REST:   return res.Load(SRC::REST_ICON).handleId_;
 		case RunManager::NODE_TYPE::BOSS:   return res.Load(SRC::BATTLE_ICON_BOSS).handleId_;
 		default: return -1;
 		}
@@ -88,7 +90,6 @@ MapScene::MapScene(void)
 
 MapScene::~MapScene(void)
 {
-	// 画像は ResourceManager が管理する(シーン切替時に Release される)
 }
 
 float MapScene::CalcScroll(int focusFloor) const
@@ -188,6 +189,15 @@ void MapScene::Update(void)
 	if (decide)
 	{
 		Decide();
+	}
+
+	// シーン遷移
+	if (ins.IsTrgDown(KEY_INPUT_ESCAPE) ||
+		ins.IsPadBtnTrgDown(
+			InputManager::JOYPAD_NO::PAD1,
+			InputManager::JOYPAD_BTN::MENU))
+	{
+		SceneManager::GetInstance().PushScene(new MenuScene());
 	}
 }
 
@@ -357,6 +367,4 @@ void MapScene::Draw(void)
 		"HP %d / %d", run.GetHp(), run.GetHpMax());
 	DrawFormatString(screenW - 140, 20, GetColor(255, 255, 255),
 		"階層 %d / %d", (curF + 1 > 0 ? curF + 1 : 0), RunManager::FLOOR_NUM);
-	DrawString(20, Application::SCREEN_SIZE_Y - 30,
-		"↑ ↓ / マウス / パッド : 選択    SPACE / クリック / パッド(A・×) : 決定", GetColor(200, 200, 200));
 }

@@ -56,7 +56,7 @@ void Stage::Draw(void)
 		s.second->Draw();
 	}
 
-	MV1DrawModel(transform_.modelId);
+//	MV1DrawModel(transform_.modelId);
 }
 
 void Stage::ChangeStage(NAME type)

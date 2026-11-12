@@ -25,6 +25,7 @@ public:
 		BATTLE_ICON_ELITE,
 		BATTLE_ICON_BOSS,
 		EVENT_ICON,
+		REST_ICON,
 		KABE,
 	};
 
