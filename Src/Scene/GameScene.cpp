@@ -9,6 +9,7 @@
 #include "../Manager/EffectManager.h"
 #include"../Manager/RunManager.h"
 #include"../Scene/MenuScene.h"
+#include "../Scene/RewardScene.h"    
 #include "../Object/Common/Capsule.h"
 #include "../Object/Common/Collider.h"
 #include "../Object/SkyDome.h"
@@ -33,11 +34,17 @@ GameScene::GameScene(void)
 
 GameScene::~GameScene(void)
 {
-	effectManager_->Cleanup();
 }
 
 void GameScene::Init(void)
 {
+	// シャドウマップハンドルの作成
+		shadowMapHandle_ = MakeShadowMap(4096, 4096);
+	SetShadowMapLightDirection(shadowMapHandle_, { 0.3f, -0.7f, 0.8f });
+
+	SetShadowMapDrawArea(shadowMapHandle_, VGet(-5000.0f, -70.0f, -6000.0f),
+		VGet(6000.0f, 1500.0f, 8000.0f));
+
 	RunManager& run = RunManager::GetInstance();
 
 	player_ = std::make_unique<Player>();
@@ -48,6 +55,8 @@ void GameScene::Init(void)
 	enemyManager_->SetTarget(&player_->GetTransform());
 	if (run.IsRunning() && run.HasCurrentNode())
 	{
+		// ★追加: 階層に応じた敵の強化
+		enemyManager_->SetScale(run.GetEnemyHpRate(), run.GetEnemySpeedRate());
 		enemyManager_->Init(run.GetCurrentNode().battleId);
 	}
 	else
@@ -77,9 +86,6 @@ void GameScene::Init(void)
 
 	mainCamera.SetFollow(&player_->GetTransform());
 	mainCamera.ChangeMode(Camera::MODE::FOLLOW);
-
-	effectManager_ = std::make_unique<EffectManager>();
-	effectManager_->Init();
 }
 
 void GameScene::Update(void)
@@ -91,7 +97,7 @@ void GameScene::Update(void)
 	stage_->Update();
 
 	int mouse = GetMouseInput();
-	if (mouse & MOUSE_INPUT_LEFT||
+	if (mouse & MOUSE_INPUT_LEFT ||
 		ins.IsPadBtnNew(InputManager::JOYPAD_NO::PAD1, InputManager::JOYPAD_BTN::R_TRIGGER))
 	{
 		weaponManager_->Switch(WeaponManager::TYPE::SWORD);   // 左クリック: 剣
@@ -130,8 +136,6 @@ void GameScene::Update(void)
 	// ゲームオーバー判定
 	CheckGameOver();
 
-	effectManager_->Update();
-
 
 	// シーン遷移
 	if (ins.IsTrgDown(KEY_INPUT_ESCAPE) ||
@@ -145,6 +149,19 @@ void GameScene::Update(void)
 
 void GameScene::Draw(void)
 {
+	ShadowMap_DrawSetup(shadowMapHandle_);
+
+	stage_->Draw();
+	weaponManager_->Draw();
+	enemyManager_->Draw();
+	
+
+	// シャドウマップへの描画を終了
+	ShadowMap_DrawEnd();
+
+	// 描画に使用するシャドウマップを設定
+	SetUseShadowMap(0, shadowMapHandle_);
+
 	// 背景
 	skyDome_->Draw();
 
@@ -158,14 +175,18 @@ void GameScene::Draw(void)
 
 	int mainScreen = SceneManager::GetInstance().GetMainScreen();
 
-	effectManager_->Draw(mainScreen);
 
 	player_->DrawHud();
+
+	// 描画に使用するシャドウマップの設定を解除
+	SetUseShadowMap(0, -1);
+
+	TestDrawShadowMap(shadowMapHandle_, 0, 0, 256, 256);
 }
 
 void GameScene::CollisionWeaponEnemy(void)
 {
-	
+
 	WeaponBase& weapon = weaponManager_->GetActive();
 	if (!weapon.IsHitActive()) return;
 
@@ -241,7 +262,10 @@ void GameScene::CollisionEnemyWeaponPlayer(void)
 
 		if (hit)
 		{
-			player_->Damage(w->GetData().damage);
+			// 階層に応じた敵の与ダメージ加算
+			RunManager& run = RunManager::GetInstance();
+			const int bonus = run.IsRunning() ? run.GetEnemyDamageBonus() : 0;
+			player_->Damage(w->GetData().damage + bonus);
 			w->MarkHit();   // この一振りでは二度当たらない
 		}
 	}
@@ -256,22 +280,31 @@ void GameScene::CheckGameClear(void)
 			return;
 		}
 	}
-	
+
 	RunManager& run = RunManager::GetInstance();
 	if (!run.IsRunning())
 	{
 		SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::GAME_CLEAR);
 		return;
 	}
+
 	run.StoreFromPlayer(*player_);
-	SceneManager::GetInstance().ChangeScene(run.IsBossNode()
-		? SceneManager::SCENE_ID::GAME_CLEAR
-		: SceneManager::SCENE_ID::MAP);
+
+	// ボスは報酬なしでクリアへ
+	if (run.IsBossNode())
+	{
+		SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::GAME_CLEAR);
+		return;
+	}
+
+	// 通常 / 強敵は報酬画面を重ねる(GameScene は止まったまま背景に残る)
+	const bool elite = (run.GetCurrentNode().type == RunManager::NODE_TYPE::ELITE);
+	SceneManager::GetInstance().PushScene(new RewardScene(elite));
 }
 
 void GameScene::CheckGameOver(void)
 {
-	if(player_->IsAlive())
+	if (player_->IsAlive())
 	{
 		return;
 	}

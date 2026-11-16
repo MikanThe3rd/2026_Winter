@@ -93,6 +93,9 @@ public:
 	void EndEvent(void);
 	bool IsEventPlaying(void) const;
 
+	// カメラ操作(マウス固定・回転)を止めてカーソルを出す(報酬画面など)
+	void SetInputLock(bool isLock) { isInputLock_ = isLock; }
+
 private:
 
 	// カメラが追従対象とするTransform
@@ -100,6 +103,9 @@ private:
 
 	// カメラモード
 	MODE mode_;
+
+	// カメラ操作のロック
+	bool isInputLock_ = false;
 
 	// カメラの位置
 	VECTOR pos_;

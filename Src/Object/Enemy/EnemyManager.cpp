@@ -1,6 +1,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <cmath>
 #include <DxLib.h>
 #include "../Common/Collider.h"
 #include "EnemyBase.h"
@@ -109,8 +110,13 @@ void EnemyManager::ClearCollider(void)
 	}
 }
 
-bool EnemyManager::Spawn(const EnemySpawnData& data)
+bool EnemyManager::Spawn(const EnemySpawnData& src)
 {
+	// 強化倍率を反映したコピーを使う
+	EnemySpawnData data = src;
+	data.hp = (std::max)(1, static_cast<int>(std::lround(src.hp * hpRate_)));
+	data.speedMove = src.speedMove * speedRate_;
+
 	auto enemy = Create(data.type);
 	if (enemy == nullptr)
 	{
@@ -157,7 +163,7 @@ bool EnemyManager::LoadSpawnData(const std::string& path, std::vector<EnemySpawn
 	{
 		lineNo++;
 
-		// UTF-8 BOM を除去
+		
 		if (lineNo == 1 && line.size() >= 3
 			&& static_cast<unsigned char>(line[0]) == 0xEF
 			&& static_cast<unsigned char>(line[1]) == 0xBB

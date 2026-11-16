@@ -99,13 +99,6 @@ void EnemySword::Draw(void)
 #ifdef _DEBUG
 	int color = IsHitActive() ? 0xff0000 : 0x808080;
 	DrawCapsule3D(posTop_, posDown_, data_.hitRadius, 8, color, color, FALSE);
-
-	// 攻撃開始からの経過フレームを表示(振りに合わせて hitStart/hitEnd を決める用)
-	if (attackTimer_ > 0)
-	{
-		DrawFormatString(10, 10, 0xffffff, "attack elapsed: %d / %d",
-			data_.attackFrames - attackTimer_, data_.attackFrames);
-	}
 #endif
 }
 

@@ -87,7 +87,7 @@ void ResourceManager::Init(void)
 	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "Knight/Knight.mv1");
 	resourcesMap_.emplace(SRC::KNIGHT, std::move(res));
 
-	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "City/City.mv1");
+	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "City/Forest.mv1");
 	resourcesMap_.emplace(SRC::KABE, std::move(res));
 }
 

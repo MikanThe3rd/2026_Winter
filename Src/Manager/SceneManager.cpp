@@ -82,9 +82,9 @@ void SceneManager::Init3D(void)
 	// ライトの設定
 	ChangeLightTypeDir({ 0.3f, -0.7f, 0.8f });
 
-	SetLightDifColor(GetColorF(0.0f, 0.0f, 0.0f, 1.0f));
-	SetLightAmbColor(GetColorF(0.0f, 0.0f, 0.0f, 1.0f));
-	SetGlobalAmbientLight(GetColorF(0.0f, 0.0f, 0.0f, 1.0f));
+	SetLightDifColor(GetColorF(1.0f, 1.0f, 1.0f, 1.0f));
+	SetLightAmbColor(GetColorF(0.3f, 0.3f, 0.3f, 1.0f));
+	SetGlobalAmbientLight(GetColorF(0.1f, 0.1f, 0.1f, 1.0f));
 
 	SetGlobalAmbientLight(GetColorF(0.1f, 0.1f, 0.1f, 1.0f));
 

@@ -1,4 +1,6 @@
 ﻿#include <algorithm>
+#include <iterator>
+#include <cmath>
 #include "../Object/Player.h"
 #include "../Object/PlayerParam.h"
 #include "RunManager.h"
@@ -7,8 +9,8 @@ namespace
 {
 	// 戦闘ID(Data/CSV/EnemySpawn.csv の battle 列と一致させる)
 	const char* NORMAL_IDS[] = { "Normal01", "Normal02" };
-	const char* ELITE_IDS[]  = { "Elite01" };
-	const char* BOSS_IDS[]   = { "Boss01" };
+	const char* ELITE_IDS[] = { "Elite01" };
+	const char* BOSS_IDS[] = { "Boss01" };
 }
 
 RunManager& RunManager::GetInstance(void)
@@ -231,4 +233,103 @@ void RunManager::ApplyToWeapons(WeaponManager& manager) const
 	{
 		manager.SetDamageBonus(static_cast<WeaponManager::TYPE>(i), weaponBonus_[i]);
 	}
+}
+
+// ---------------------------------------------------------------
+// 戦闘報酬
+// ---------------------------------------------------------------
+
+std::vector<RunManager::Reward> RunManager::PickRewards(bool elite, int count)
+{
+	struct Def
+	{
+		REWARD_TYPE type;
+		const char* name;
+		int normal;     // 通常戦闘の値
+		int strong;     // 強敵の値
+	};
+
+	// ★数値はここで調整(SPEED は % 、HEAL の 999 は全回復扱い)
+	static const Def DEFS[] =
+	{
+		{ REWARD_TYPE::HP_MAX,       "最大HP強化",     2,  5   },
+		{ REWARD_TYPE::HEAL,         "傷の手当て",     3,  999 },
+		{ REWARD_TYPE::SPEED,        "移動速度強化",   10, 20  },
+		{ REWARD_TYPE::SWORD_DAMAGE, "剣の強化",       1,  2   },
+		{ REWARD_TYPE::CLAW_DAMAGE,  "爪の強化",       1,  2   },
+		{ REWARD_TYPE::ALL_DAMAGE,   "全武器の強化",   0,  1   },   // 強敵のみ
+	};
+
+	// 候補(通常は value=0 の項目を除外)
+	std::vector<int> pool;
+	for (int i = 0; i < static_cast<int>(std::size(DEFS)); ++i)
+	{
+		if (!elite && DEFS[i].normal <= 0) continue;
+		pool.push_back(i);
+	}
+	std::shuffle(pool.begin(), pool.end(), rng_);
+
+	std::vector<Reward> ret;
+	for (int i = 0; i < count && i < static_cast<int>(pool.size()); ++i)
+	{
+		const Def& d = DEFS[pool[i]];
+		Reward r;
+		r.type = d.type;
+		r.elite = elite;
+		r.value = elite ? d.strong : d.normal;
+		r.name = d.name;
+
+		switch (d.type)
+		{
+		case REWARD_TYPE::HP_MAX:
+			r.desc = "最大HP +" + std::to_string(r.value); break;
+		case REWARD_TYPE::HEAL:
+			r.desc = (r.value >= 999) ? "HPを全回復" : "HPを " + std::to_string(r.value) + " 回復"; break;
+		case REWARD_TYPE::SPEED:
+			r.desc = "移動速度 +" + std::to_string(r.value) + "%"; break;
+		case REWARD_TYPE::SWORD_DAMAGE:
+			r.desc = "剣のダメージ +" + std::to_string(r.value); break;
+		case REWARD_TYPE::CLAW_DAMAGE:
+			r.desc = "爪のダメージ +" + std::to_string(r.value); break;
+		case REWARD_TYPE::ALL_DAMAGE:
+			r.desc = "全武器のダメージ +" + std::to_string(r.value); break;
+		}
+		ret.push_back(r);
+	}
+	return ret;
+}
+
+void RunManager::ApplyReward(const Reward& r)
+{
+	switch (r.type)
+	{
+	case REWARD_TYPE::HP_MAX:       AddHpMax(r.value); break;
+	case REWARD_TYPE::HEAL:         Heal(r.value); break;
+	case REWARD_TYPE::SPEED:        AddSpeedRate(r.value * 0.01f); break;
+	case REWARD_TYPE::SWORD_DAMAGE: AddWeaponDamageBonus(WeaponManager::TYPE::SWORD, r.value); break;
+	case REWARD_TYPE::CLAW_DAMAGE:  AddWeaponDamageBonus(WeaponManager::TYPE::CLAW, r.value); break;
+	case REWARD_TYPE::ALL_DAMAGE:   AddAllWeaponDamageBonus(r.value); break;
+	}
+}
+
+// ---------------------------------------------------------------
+// 敵の強化(階層が進むほど強くなる)
+// ---------------------------------------------------------------
+
+float RunManager::GetEnemyHpRate(void) const
+{
+	// 1階層ごとに +10%
+	return 1.0f + (std::max)(0, currentFloor_) * 0.10f;
+}
+
+float RunManager::GetEnemySpeedRate(void) const
+{
+	// 1階層ごとに +2%(上限 +30%)
+	return (std::min)(1.3f, 1.0f + (std::max)(0, currentFloor_) * 0.02f);
+}
+
+int RunManager::GetEnemyDamageBonus(void) const
+{
+	// 4階層ごとに +1
+	return (std::max)(0, currentFloor_) / 4;
 }

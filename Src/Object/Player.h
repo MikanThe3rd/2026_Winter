@@ -183,9 +183,6 @@ private:
 	void UpdateBloodsucking(void);
 	void UpdateSpecialAttack(void);
 
-	// ŠÛ‰e‚Ì•`‰æ
-	void DrawShadow(void);
-
 	// ‘€ì
 	void ProcessMove(void);
 	void ProcessJump(void);

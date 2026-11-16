@@ -196,6 +196,8 @@ void Camera::RotMouse(bool isLimit)
 
 void Camera::ChangeMode(MODE mode)
 {
+	// モードが変わったらロック解除
+	isInputLock_ = false;
 
 	// カメラの初期設定
 	SetDefault();
@@ -296,9 +298,12 @@ void Camera::SetBeforeDrawFixedPoint(void)
 
 void Camera::SetBeforeDrawFollow(void)
 {
-	// カメラ操作
-	RotGamePad(true);
-	ProcessRot(true);
+	// カメラ操作(ロック中はマウス固定も回転もしない)
+	if (!isInputLock_)
+	{
+		RotGamePad(true);
+		ProcessRot(true);
+	}
 
 	// 追従対象との相対位置を同期
 	SyncFollow();
@@ -474,7 +479,7 @@ void Camera::DrawCursor(void)
 {
 	// カーソルを出すのは「固定カメラ中」か「FOLLOW中にAltでカーソルを解放している間」
 	bool isShow = false;
-	if (mode_ == MODE::FIXED_POINT)
+	if (mode_ == MODE::FIXED_POINT || isInputLock_)
 	{
 		isShow = true;
 	}

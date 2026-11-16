@@ -8,7 +8,6 @@ class SkyDome;
 class Player;
 class WeaponManager;
 class EnemyManager;
-class EffectManager;
 class EnemyBase;
 
 class GameScene : public SceneBase
@@ -42,9 +41,6 @@ private:
 
 	// 敵
 	std::unique_ptr<EnemyManager> enemyManager_;
-
-	// エフェクトマネージャ
-	std::unique_ptr<EffectManager> effectManager_;
 
 	// 当たり判定(武器と敵)
 	void CollisionWeaponEnemy(void);
@@ -81,4 +77,7 @@ private:
 
 	// 押し戻しの割合(プレイヤーは動かされにくくする)
 	static constexpr float PLAYER_PUSH_RATE = 0.3f;
+
+	// 影マップ
+	int shadowMapHandle_;
 };

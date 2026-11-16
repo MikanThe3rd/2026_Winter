@@ -91,6 +91,37 @@ public:
 	// 戦闘開始時に、武器へダメージ加算を反映する
 	void ApplyToWeapons(WeaponManager& manager) const;
 
+	// ---- 戦闘報酬 ----
+	enum class REWARD_TYPE
+	{
+		HP_MAX,         // 最大HP増加
+		HEAL,           // 回復
+		SPEED,          // 移動速度
+		SWORD_DAMAGE,   // 剣ダメージ
+		CLAW_DAMAGE,    // 爪ダメージ
+		ALL_DAMAGE,     // 全武器ダメージ(強敵報酬のみ)
+	};
+
+	struct Reward
+	{
+		REWARD_TYPE type = REWARD_TYPE::HP_MAX;
+		int value = 0;
+		bool elite = false;     // 強敵報酬(強化版)か
+		std::string name;
+		std::string desc;
+	};
+
+	// 報酬候補を count 個選ぶ(elite なら強化版テーブル)
+	std::vector<Reward> PickRewards(bool elite, int count = 3);
+
+	// 選んだ報酬を適用する
+	void ApplyReward(const Reward& reward);
+
+	// ---- 敵の強化(階層が進むほど強くなる) ----
+	float GetEnemyHpRate(void) const;
+	float GetEnemySpeedRate(void) const;
+	int GetEnemyDamageBonus(void) const;
+
 	// 乱数 [0, n)
 	int Random(int n);
 

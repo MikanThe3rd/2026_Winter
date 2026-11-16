@@ -196,7 +196,7 @@ void EventScene::Update(void)
 	using DIR = InputManager::JOYPAD_DIR;
 	const bool padDown = ins.IsPadDirTrgDown(PAD, DIR::DOWN);
 	const bool padUp = ins.IsPadDirTrgDown(PAD, DIR::UP);
-	const bool padDecide = ins.IsPadBtnTrgDown(PAD, InputManager::JOYPAD_BTN::DOWN);   // A / ×
+	const bool padDecide = ins.IsPadBtnTrgDown(PAD, InputManager::JOYPAD_BTN::DOWN);
 
 	if (phase_ == PHASE::SELECT)
 	{

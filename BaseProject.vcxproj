@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Scene\RewardScene.cpp" />
     <ClCompile Include="Src\Scene\MenuScene.cpp" />
     <ClCompile Include="Src\Scene\EventScene.cpp" />
     <ClCompile Include="Src\Scene\MapScene.cpp" />
@@ -67,6 +68,7 @@
     <ClCompile Include="Src\Object\Weapon\WeaponManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Scene\RewardScene.h" />
     <ClInclude Include="Src\Scene\MenuScene.h" />
     <ClInclude Include="Src\Scene\EventScene.h" />
     <ClInclude Include="Src\Scene\MapScene.h" />

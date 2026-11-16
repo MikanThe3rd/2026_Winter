@@ -17,15 +17,15 @@ EnemyBase::EnemyBase(void)
 	hp_(0),
 	hpMax_(0),
 	hpBarOffsetY_(0.0f),
-	engageAction_(ENGAGE_ACTION::BACK),     // 追加
-	engageTimer_(0),                        // 追加
-	stunTimer_(0),                          // 追加
-	stunTriggered_(false)                   // 追加
+	engageAction_(ENGAGE_ACTION::BACK),    
+	engageTimer_(0),                        
+	stunTimer_(0),                         
+	stunTriggered_(false)                   
 {
 	animationController_ = nullptr;
 	capsule_ = nullptr;
 	target_ = nullptr;
-	weapon_ = nullptr;      // 追加
+	weapon_ = nullptr;     
 
 	movePow_ = AsoUtility::VECTOR_ZERO;
 	jumpPow_ = AsoUtility::VECTOR_ZERO;
@@ -36,9 +36,9 @@ EnemyBase::EnemyBase(void)
 	// 状態管理
 	stateChanges_.emplace(STATE::SEARCH, std::bind(&EnemyBase::ChangeStateSearch, this));
 	stateChanges_.emplace(STATE::TRACKING, std::bind(&EnemyBase::ChangeStateTracking, this));
-	stateChanges_.emplace(STATE::ENGAGE, std::bind(&EnemyBase::ChangeStateEngage, this));   // 追加
-	stateChanges_.emplace(STATE::STUN, std::bind(&EnemyBase::ChangeStateStun, this));       // 追加
-	stateChanges_.emplace(STATE::ATTACK, std::bind(&EnemyBase::ChangeStateAttack, this));   // 追加
+	stateChanges_.emplace(STATE::ENGAGE, std::bind(&EnemyBase::ChangeStateEngage, this));   
+	stateChanges_.emplace(STATE::STUN, std::bind(&EnemyBase::ChangeStateStun, this));       
+	stateChanges_.emplace(STATE::ATTACK, std::bind(&EnemyBase::ChangeStateAttack, this));   
 }
 
 EnemyBase::~EnemyBase(void)
@@ -65,7 +65,7 @@ void EnemyBase::Update(void)
 	// アニメーション再生
 	animationController_->Update();
 
-	// 追加: 武器の更新(アニメーション反映後の手の位置を使うため、必ずこの位置)
+	// 武器の更新(アニメーション反映後の手の位置を使うため、必ずこの位置)
 	if (weapon_)
 	{
 		weapon_->Update();
@@ -77,7 +77,7 @@ void EnemyBase::Draw(void)
 	// モデルの描画
 	MV1DrawModel(transform_.modelId);
 
-	// 追加: 武器の描画
+	// 武器の描画
 	if (weapon_)
 	{
 		weapon_->Draw();
@@ -302,7 +302,7 @@ void EnemyBase::UpdateEngage(void)
 
 void EnemyBase::PickEngageAction(float dist)
 {
-	int r = GetRand(99);    // DxLib: 0〜99
+	int r = GetRand(99);
 
 	if (r < RATE_ATTACK)
 	{
@@ -343,7 +343,7 @@ void EnemyBase::UpdateAttack(void)
 
 	if (weapon_ == nullptr || animEnd)
 	{
-		ChangeState(STATE::ENGAGE);   // 変更: TRACKING → ENGAGE
+		ChangeState(STATE::ENGAGE);
 	}
 }
 

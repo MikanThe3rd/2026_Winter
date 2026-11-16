@@ -32,6 +32,9 @@ public:
 	void AddCollider(std::weak_ptr<Collider> collider);
 	void ClearCollider(void);
 
+	// スポーン時に掛ける強化倍率(Init の前に呼ぶ)
+	void SetScale(float hpRate, float speedRate) { hpRate_ = hpRate; speedRate_ = speedRate; }
+
 	// 1体スポーンさせる(ゲーム中の追加スポーンにも使用可)
 	bool Spawn(const EnemySpawnData& data);
 
@@ -45,6 +48,10 @@ private:
 	// マネージャーが保持する共通設定
 	const Transform* target_;
 	std::vector<std::weak_ptr<Collider>> colliders_;
+
+	// スポーン時の強化倍率
+	float hpRate_ = 1.0f;
+	float speedRate_ = 1.0f;
 
 	// CSV 読み込み(全行を返す。絞り込みは Init で行う)
 	bool LoadSpawnData(const std::string& path, std::vector<EnemySpawnData>& out);
