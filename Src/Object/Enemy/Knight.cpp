@@ -5,6 +5,7 @@
 #include "../Common/AnimationController.h"
 #include "../../Manager/ResourceManager.h"
 #include "../Common/Capsule.h"
+#include "EnemyWeapon/EnemySword.h"
 #include "Knight.h"
 
 Knight::Knight(void)
@@ -64,6 +65,37 @@ void Knight::InitAnimation(void)
 	animationController_->Add((int)ANIM_TYPE::STUN, path + "Stun.mv1", 20.0f);
 
 	animationController_->Play((int)ANIM_TYPE::IDLE);
+}
+
+void Knight::ChangeStateEngage(void)
+{
+	EnemyBase::ChangeStateEngage();
+
+	// 入った直後は移動行動から始める(即攻撃を防ぎつつ、立ち止まらない)
+	engageAction_ = (GetRand(1) == 0) ? ENGAGE_ACTION::BACK : ENGAGE_ACTION::APPROACH;
+	engageTimer_ = ENGAGE_TIME_MIN;
+}
+
+void Knight::ChangeStateStun(void)
+{
+	EnemyBase::ChangeStateStun();
+
+	stunTimer_ = STUN_TIME;
+
+	animationController_->Play((int)ANIM_TYPE::STUN);
+}
+
+void Knight::ChangeStateAttack(void)
+{
+	EnemyBase::ChangeStateAttack();
+
+	if (weapon_)
+	{
+		weapon_->StartAttack();
+	}
+
+	// ループ指定の引数は AnimationController::Play の仕様に合わせて調整
+	animationController_->Play((int)ANIM_TYPE::ATTACK, false);
 }
 
 void Knight::UpdateSearch(void)
@@ -126,4 +158,110 @@ void Knight::UpdateTracking(void)
 	// プレイヤーの方向へ徐々に振り向く
 	TurnToDir(dir);
 	animationController_->Play((int)ANIM_TYPE::RUN);
+}
+
+void Knight::UpdateEngage(void)
+{
+	movePow_ = AsoUtility::VECTOR_ZERO;
+
+	if (target_ == nullptr)
+	{
+		ChangeState(STATE::SEARCH);
+		return;
+	}
+
+	VECTOR diff = VSub(target_->pos, transform_.pos);
+	diff.y = 0.0f;
+	float dist = VSize(diff);
+
+	// 離れたら追従/探索に戻る
+	if (dist > spawnData_.loseRange)
+	{
+		ChangeState(STATE::SEARCH);
+		return;
+	}
+	if (dist > spawnData_.stopRange + ENGAGE_EXIT_MARGIN)
+	{
+		ChangeState(STATE::TRACKING);
+		return;
+	}
+
+	// 常にプレイヤーの方を向く
+	VECTOR dir = AsoUtility::VECTOR_ZERO;
+	if (dist > 0.001f)
+	{
+		dir = VScale(diff, 1.0f / dist);
+		TurnToDir(dir);
+	}
+
+	// 行動の抽選
+	if (--engageTimer_ <= 0)
+	{
+		PickEngageAction(dist);
+		if (state_ != STATE::ENGAGE)
+		{
+			return;     // 攻撃に遷移した
+		}
+	}
+
+	// 行動の実行
+	switch (engageAction_)
+	{
+	case ENGAGE_ACTION::BACK:
+		// 下がりすぎない(離脱ラインの手前で止める)
+		if (dist < spawnData_.stopRange + ENGAGE_EXIT_MARGIN * 0.5f)
+		{
+			// 向きは上で常にプレイヤーへ向けているので、逆方向へ動くだけで後退になる
+			movePow_ = VScale(dir, -spawnData_.speedMove);
+			animationController_->Play((int)ANIM_TYPE::BACK);
+		}
+		else
+		{
+			engageTimer_ = 0;   // 次フレームで再抽選
+		}
+		break;
+
+	case ENGAGE_ACTION::APPROACH:
+		// 寄りすぎない
+		if (dist > spawnData_.stopRange * 0.5f)
+		{
+			movePow_ = VScale(dir, spawnData_.speedMove);
+			animationController_->Play((int)ANIM_TYPE::RUN);
+		}
+		else
+		{
+			engageTimer_ = 0;
+		}
+		break;
+
+	default:
+		break;
+	}
+}
+
+void Knight::UpdateStun(void)
+{
+	// 行動不能
+	movePow_ = AsoUtility::VECTOR_ZERO;
+
+	if (--stunTimer_ <= 0)
+	{
+		// 復帰後は追従へ。近ければ Knight 側で ENGAGE に遷移する
+		ChangeState(STATE::TRACKING);
+	}
+}
+
+void Knight::UpdateAttack(void)
+{
+	movePow_ = AsoUtility::VECTOR_ZERO;
+
+	// 攻撃アニメーションが最後まで再生されたら交戦に戻る
+	bool animEnd =
+		animationController_->GetPlayType() == (int)ANIM_TYPE::ATTACK
+		&& animationController_->IsEnd();
+
+	if (weapon_ == nullptr || animEnd)
+	{
+		ChangeState(STATE::ENGAGE);
+	}
 }

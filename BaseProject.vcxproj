@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Object\Enemy\Sister.cpp" />
+    <ClCompile Include="Src\Object\Stage\Ground.cpp" />
     <ClCompile Include="Src\Scene\RewardScene.cpp" />
     <ClCompile Include="Src\Scene\MenuScene.cpp" />
     <ClCompile Include="Src\Scene\EventScene.cpp" />
@@ -55,10 +57,10 @@
     <ClCompile Include="Src\Object\Common\Capsule.cpp" />
     <ClCompile Include="Src\Object\Common\Collider.cpp" />
     <ClCompile Include="Src\Object\Common\Transform.cpp" />
-    <ClCompile Include="Src\Object\Planet.cpp" />
+    <ClCompile Include="Src\Object\Stage\Planet.cpp" />
     <ClCompile Include="Src\Object\Player.cpp" />
     <ClCompile Include="Src\Object\SkyDome.cpp" />
-    <ClCompile Include="Src\Object\Stage.cpp" />
+    <ClCompile Include="Src\Object\Stage\Stage.cpp" />
     <ClCompile Include="Src\Scene\GameScene.cpp" />
     <ClCompile Include="Src\Scene\SceneBase.cpp" />
     <ClCompile Include="Src\Scene\TitleScene.cpp" />
@@ -68,6 +70,8 @@
     <ClCompile Include="Src\Object\Weapon\WeaponManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Object\Enemy\Sister.h" />
+    <ClInclude Include="Src\Object\Stage\Ground.h" />
     <ClInclude Include="Src\Scene\RewardScene.h" />
     <ClInclude Include="Src\Scene\MenuScene.h" />
     <ClInclude Include="Src\Scene\EventScene.h" />
@@ -106,10 +110,10 @@
     <ClInclude Include="Src\Object\Common\Capsule.h" />
     <ClInclude Include="Src\Object\Common\Collider.h" />
     <ClInclude Include="Src\Object\Common\Transform.h" />
-    <ClInclude Include="Src\Object\Planet.h" />
+    <ClInclude Include="Src\Object\Stage\Planet.h" />
     <ClInclude Include="Src\Object\Player.h" />
     <ClInclude Include="Src\Object\SkyDome.h" />
-    <ClInclude Include="Src\Object\Stage.h" />
+    <ClInclude Include="Src\Object\Stage\Stage.h" />
     <ClInclude Include="Src\Scene\GameScene.h" />
     <ClInclude Include="Src\Scene\SceneBase.h" />
     <ClInclude Include="Src\Scene\TitleScene.h" />

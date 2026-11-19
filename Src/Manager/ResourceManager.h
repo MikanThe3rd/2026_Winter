@@ -17,7 +17,10 @@ public:
 		PLAYER,
 		PLAYER_SHADOW,
 		SKY_DOME,
-		MAIN_PLANET,
+		FOREST,
+		CITY,
+		CITY_COLLISION,
+		CHAPEL,
 		SWORD,
 		CLAW,
 		KNIGHT,
@@ -26,7 +29,6 @@ public:
 		BATTLE_ICON_BOSS,
 		EVENT_ICON,
 		REST_ICON,
-		KABE,
 	};
 
 	// 明示的にインステンスを生成する

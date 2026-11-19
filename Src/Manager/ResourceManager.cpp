@@ -71,9 +71,21 @@ void ResourceManager::Init(void)
 	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "SkyDome/SkyDome.mv1");
 	resourcesMap_.emplace(SRC::SKY_DOME, std::move(res));
 
-	// ç≈èâÇÃòfêØ
-	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "Planet/MainPlanet.mv1");
-	resourcesMap_.emplace(SRC::MAIN_PLANET, std::move(res));
+	// êX
+	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "Stage/Forest.mv1");
+	resourcesMap_.emplace(SRC::FOREST, std::move(res));
+
+	// äX
+	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "Stage/CityDraw.mv1");
+	resourcesMap_.emplace(SRC::CITY, std::move(res));
+
+	// äXÇÃìñÇΩÇËîªíËóp
+	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "Stage/CityCollider.mv1");
+	resourcesMap_.emplace(SRC::CITY_COLLISION, std::move(res));
+
+	// óÁîqì∞
+	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "Stage/Chapel.mv1");
+	resourcesMap_.emplace(SRC::CHAPEL, std::move(res));
 
 	// åï
 	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "Weapon/Sword.mv1");
@@ -86,9 +98,6 @@ void ResourceManager::Init(void)
 	// ÉiÉCÉg
 	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "Knight/Knight.mv1");
 	resourcesMap_.emplace(SRC::KNIGHT, std::move(res));
-
-	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "City/Forest.mv1");
-	resourcesMap_.emplace(SRC::KABE, std::move(res));
 }
 
 void ResourceManager::Release(void)

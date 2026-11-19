@@ -7,7 +7,7 @@ class Knight : public EnemyBase
 {
 public:
 
-	static constexpr double ROT_RATE = 0.1;
+	
 
 	// コンストラクタ
 	Knight(void);
@@ -21,7 +21,14 @@ public:
 
 protected:
 
+	void ChangeStateEngage(void) override;
+	void ChangeStateStun(void) override;
+	void ChangeStateAttack(void) override;
+
 	void UpdateSearch(void) override;
 	void UpdateTracking(void) override;
+	void UpdateEngage(void) override;
+	void UpdateStun(void) override;
+	void UpdateAttack(void) override;
 
 };

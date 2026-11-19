@@ -8,7 +8,7 @@
 #include "Common/AnimationController.h"
 #include "Common/Capsule.h"
 #include "Common/Collider.h"
-#include "Planet.h"
+#include "Stage/Planet.h"
 #include "Player.h"
 
 Player::Player(void)

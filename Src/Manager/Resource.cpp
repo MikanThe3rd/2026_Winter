@@ -89,32 +89,36 @@ void Resource::Release(void)
 
 	case Resource::TYPE::IMGS:
 	{
-		int num = numX_ * numY_;
-		for (int i = 0; i < num; i++)
+		if (handleIds_ != nullptr)
 		{
-			DeleteGraph(handleIds_[i]);
+			int num = numX_ * numY_;
+			for (int i = 0; i < num; i++)
+			{
+				DeleteGraph(handleIds_[i]);
+			}
+			delete[] handleIds_;
+			handleIds_ = nullptr;
 		}
-		delete[] handleIds_;
 	}
-		break;
+	break;
 
 	case Resource::TYPE::MODEL:
 	{
 		MV1DeleteModel(handleId_);
-		auto ids = duplicateModelIds_;
-		for (auto id : ids)
+		for (auto id : duplicateModelIds_)
 		{
 			MV1DeleteModel(id);
 		}
+		duplicateModelIds_.clear();
 	}
-		break;
+	break;
 
 	case Resource::TYPE::EFFEKSEER:
-
 		DeleteEffekseerEffect(handleId_);
 		break;
-
 	}
+
+	handleId_ = -1;
 }
 
 void Resource::CopyHandle(int* imgs)

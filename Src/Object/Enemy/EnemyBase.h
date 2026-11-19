@@ -168,17 +168,17 @@ protected:
 
 	// ó‘Ô‘JˆÚ
 	void ChangeState(STATE state);
-	void ChangeStateSearch(void);
-	void ChangeStateTracking(void);
-	void ChangeStateEngage(void);       
-	void ChangeStateStun(void);         
-	void ChangeStateAttack(void);
+	virtual void ChangeStateSearch(void);
+	virtual void ChangeStateTracking(void);
+	virtual void ChangeStateEngage(void);
+	virtual void ChangeStateStun(void);         
+	virtual void ChangeStateAttack(void);
 
 	virtual void UpdateSearch(void) = 0;
 	virtual void UpdateTracking(void) = 0;
-	virtual void UpdateEngage(void);    
-	virtual void UpdateStun(void);      
-	virtual void UpdateAttack(void);
+	virtual void UpdateEngage(void) = 0;
+	virtual void UpdateStun(void) = 0;
+	virtual void UpdateAttack(void) = 0;
 
 	// Œğí’†‚Ìs“®‚ğ’Š‘I‚·‚é(UŒ‚‚É‘JˆÚ‚µ‚½‚ç state_ ‚ª ATTACK ‚É‚È‚é)
 	void PickEngageAction(float dist);

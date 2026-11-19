@@ -13,9 +13,9 @@
 #include "../Object/Common/Capsule.h"
 #include "../Object/Common/Collider.h"
 #include "../Object/SkyDome.h"
-#include "../Object/Stage.h"
+#include "../Object/Stage/Stage.h"
+#include "../Object/Stage/Planet.h"
 #include "../Object/Player.h"
-#include "../Object/Planet.h"
 #include "../Object/Weapon/WeaponBase.h"
 #include "../Object/Weapon/WeaponManager.h"
 #include "../Object/Enemy/EnemyBase.h"
@@ -30,6 +30,8 @@ GameScene::GameScene(void)
 	enemyManager_ = nullptr;
 	skyDome_ = nullptr;
 	stage_ = nullptr;
+	shadowMapHandle_ = -1;
+	specialTarget_ = nullptr;
 }
 
 GameScene::~GameScene(void)
@@ -49,13 +51,13 @@ void GameScene::Init(void)
 
 	player_ = std::make_unique<Player>();
 	player_->Init();
-	run.ApplyToPlayer(*player_);          // 前の戦闘からHPを引き継ぐ
+	run.ApplyToPlayer(*player_);         
 
 	enemyManager_ = std::make_unique<EnemyManager>();
 	enemyManager_->SetTarget(&player_->GetTransform());
 	if (run.IsRunning() && run.HasCurrentNode())
 	{
-		// ★追加: 階層に応じた敵の強化
+		//  階層に応じた敵の強化
 		enemyManager_->SetScale(run.GetEnemyHpRate(), run.GetEnemySpeedRate());
 		enemyManager_->Init(run.GetCurrentNode().battleId);
 	}
@@ -64,7 +66,7 @@ void GameScene::Init(void)
 		enemyManager_->Init();   // GameScene 単体起動(デバッグ)時は従来どおり
 	}
 
-	// 武器(武器を変えるのはここだけ)
+	// 武器
 	weaponManager_ = std::make_unique<WeaponManager>();
 	weaponManager_->Init();
 	run.ApplyToWeapons(*weaponManager_);
@@ -77,8 +79,7 @@ void GameScene::Init(void)
 	// 敵をステージに登録
 	stage_->SetEnemyManager(enemyManager_.get());
 
-	// ステージの初期設定
-	stage_->ChangeStage(Stage::NAME::MAIN_PLANET);
+	stage_->ChangeStage(Stage::NAME::FOREST);
 
 	// スカイドーム
 	skyDome_ = std::make_unique<SkyDome>(player_->GetTransform());
