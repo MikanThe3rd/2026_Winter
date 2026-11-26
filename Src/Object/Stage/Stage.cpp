@@ -18,7 +18,7 @@ Stage::Stage(Player& player)
 
 Stage::~Stage(void)
 {
-	stages_.clear();
+	
 }
 
 void Stage::Init(void)
@@ -33,6 +33,11 @@ void Stage::Init(void)
 	MakeStage(NAME::FOREST,
 		ResourceManager::SRC::FOREST,
 		ResourceManager::SRC::FOREST,
+		{ 0.0f, -100.0f, 0.0f });
+
+	MakeStage(NAME::CHAPEL,
+		ResourceManager::SRC::CHAPEL,
+		ResourceManager::SRC::CHAPEL,
 		{ 0.0f, -100.0f, 0.0f });
 
 	step_ = -1.0f;
@@ -82,14 +87,16 @@ void Stage::MakeStage(NAME name,
 	StageData data;
 
 	// •`‰æ—p
-	data.drawTrans.SetModel(resMng_.LoadModelDuplicate(drawSrc));
+	data.drawTrans.SetModel(
+		resMng_.LoadModelDuplicate(drawSrc));
 	data.drawTrans.scl = { 1.0f, 1.0f, 1.0f };
 	data.drawTrans.quaRot = Quaternion();
 	data.drawTrans.pos = pos;
 	data.drawTrans.Update();
 
 	// “–‚½‚è”»’è—p
-	data.colliderTrans.SetModel(resMng_.LoadModelDuplicate(colliderSrc));
+	data.colliderTrans.SetModel(
+		resMng_.LoadModelDuplicate(colliderSrc));
 	data.colliderTrans.scl = { 1.0f, 1.0f, 1.0f };
 	data.colliderTrans.quaRot = Quaternion();
 	data.colliderTrans.pos = pos;

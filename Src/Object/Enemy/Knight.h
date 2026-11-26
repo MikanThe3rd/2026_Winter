@@ -7,8 +7,6 @@ class Knight : public EnemyBase
 {
 public:
 
-	
-
 	// コンストラクタ
 	Knight(void);
 

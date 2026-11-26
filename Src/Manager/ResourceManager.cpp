@@ -63,10 +63,6 @@ void ResourceManager::Init(void)
 	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "Player/vampire.mv1");
 	resourcesMap_.emplace(SRC::PLAYER, std::move(res));
 
-	// プレイヤー影
-	res = std::make_unique<RES>(RES_T::IMG, PATH_IMG + "Shadow.png");
-	resourcesMap_.emplace(SRC::PLAYER_SHADOW, std::move(res));
-
 	// スカイドーム
 	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "SkyDome/SkyDome.mv1");
 	resourcesMap_.emplace(SRC::SKY_DOME, std::move(res));
@@ -98,6 +94,10 @@ void ResourceManager::Init(void)
 	// ナイト
 	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "Knight/Knight.mv1");
 	resourcesMap_.emplace(SRC::KNIGHT, std::move(res));
+
+	// シスター
+	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "Sister/Sister.mv1");
+	resourcesMap_.emplace(SRC::SISTER, std::move(res));
 }
 
 void ResourceManager::Release(void)

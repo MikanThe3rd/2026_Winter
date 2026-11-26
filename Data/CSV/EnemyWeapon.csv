@@ -1,0 +1,3 @@
+# 近接武器(1行1種類。# で始まる行はコメント)
+name,modelPath,handFrameName,posX,posY,posZ,rotX,rotY,rotZ,scale,damage,range,cooldownFrames,attackFrames,hitStartFrame,hitEndFrame,hitLength,hitRadius
+Sword,Data/Model/Weapon/Sword.mv1,mixamorig:RightHand,0,0,0,0,0,0,1.0,1,120,90,180,40,180,100,25

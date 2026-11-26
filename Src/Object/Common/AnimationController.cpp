@@ -18,6 +18,12 @@ AnimationController::AnimationController(int modelId)
 
 AnimationController::~AnimationController(void)
 {
+	// 取り付け中のアニメーションを先に外す
+	if (playType_ != -1)
+	{
+		MV1DetachAnim(modelId_, playAnim_.attachNo);
+	}
+
 	for (const auto& anim : animations_)
 	{
 		MV1DeleteModel(anim.second.model);
@@ -76,6 +82,10 @@ void AnimationController::Play(int type, bool isLoop,
 			animIdx = 1;
 		}
 		playAnim_.attachNo = MV1AttachAnim(modelId_, animIdx, playAnim_.model);
+
+		printf("AnimNum: %d\n", MV1GetAnimNum(playAnim_.model));
+		printf("TotalTime: %f\n",
+			MV1GetAttachAnimTotalTime(modelId_, playAnim_.attachNo));
 
 		// アニメーション総時間の取得
 		if (endStep > 0.0f)

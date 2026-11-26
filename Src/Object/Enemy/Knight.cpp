@@ -48,6 +48,12 @@ void Knight::Draw(void)
 {
 	EnemyBase::Draw();
 
+	// 武器の描画
+	if (weapon_)
+	{
+		weapon_->Draw();
+	}
+
 	//#ifdef _DEBUG
 	//	// 検知範囲(球のワイヤーフレーム)を表示
 	//	DrawSphere3D(transform_.pos, spawnData_.detectRange, 4, 0x00ff00, 0x00ff00, FALSE);
@@ -115,7 +121,7 @@ void Knight::UpdateSearch(void)
 	if (VSize(diff) < spawnData_.detectRange)
 	{
 		ChangeState(STATE::TRACKING);
-		return;     // 変更: 遷移したら IDLE を上書きしない
+		return;     
 	}
 
 	animationController_->Play((int)ANIM_TYPE::IDLE);
@@ -246,7 +252,7 @@ void Knight::UpdateStun(void)
 
 	if (--stunTimer_ <= 0)
 	{
-		// 復帰後は追従へ。近ければ Knight 側で ENGAGE に遷移する
+		// 復帰後は追従へ。
 		ChangeState(STATE::TRACKING);
 	}
 }

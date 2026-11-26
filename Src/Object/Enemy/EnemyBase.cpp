@@ -5,9 +5,8 @@
 #include "../Common/AnimationController.h"
 #include "../Common/Capsule.h"
 #include "../Common/Collider.h"
-#include "../Stage/Planet.h"
-#include "EnemyWeapon/EnemySword.h"           
-#include "EnemyWeapon/EnemyWeaponDatabase.h"    
+#include"../Stage/Ground.h"
+#include "EnemyWeapon/EnemyWeaponDataBase.h"          
 #include "EnemyBase.h"
 
 EnemyBase::EnemyBase(void)
@@ -65,10 +64,12 @@ void EnemyBase::Update(void)
 	// アニメーション再生
 	animationController_->Update();
 
-	// 武器の更新(アニメーション反映後の手の位置を使うため、必ずこの位置)
 	if (weapon_)
 	{
-		weapon_->Update();
+		EnemyAttackBase::Context ctx;
+		ctx.ownerPos = transform_.pos;
+		ctx.targetPos = target_ ? target_->pos : transform_.pos;
+		weapon_->Update(ctx);
 	}
 }
 
@@ -76,12 +77,6 @@ void EnemyBase::Draw(void)
 {
 	// モデルの描画
 	MV1DrawModel(transform_.modelId);
-
-	// 武器の描画
-	if (weapon_)
-	{
-		weapon_->Draw();
-	}
 
 	// HPバー
 	DrawHpBar();
@@ -122,20 +117,21 @@ void EnemyBase::ClearCollider(void)
 
 void EnemyBase::EquipWeapon(const std::string& weaponName)
 {
-	// 空なら武器なし
 	if (weaponName.empty())
 	{
 		return;
 	}
 
-	const WeaponData* data = FindWeaponData(weaponName);
-	if (data == nullptr)
+	weapon_ = CreateAttack(weaponName, transform_.modelId);
+	if (weapon_ == nullptr)
 	{
 		OutputDebugStringA(("[EnemyBase] 未登録の武器名: " + weaponName + "\n").c_str());
-		return;
 	}
+}
 
-	weapon_ = std::make_unique<EnemySword>(*data, transform_.modelId);
+int EnemyBase::CheckAttackHit(const Capsule& player)
+{
+	return weapon_ ? weapon_->CheckHitPlayer(player) : 0;
 }
 
 void EnemyBase::AddPos(const VECTOR& v)
@@ -231,7 +227,7 @@ void EnemyBase::CalcGravityPow(void)
 	VECTOR dirGravity = AsoUtility::DIR_D;
 
 	// 重力の強さ
-	float gravityPow = Planet::DEFAULT_GRAVITY_POW;
+	float gravityPow =Ground::DEFAULT_GRAVITY_POW;
 
 	// 重力
 	VECTOR gravity = VScale(dirGravity, gravityPow);
@@ -273,7 +269,7 @@ void EnemyBase::CollisionGravity(void)
 	VECTOR dirUpGravity = AsoUtility::DIR_U;
 
 	// 重力の強さ
-	float gravityPow = Planet::DEFAULT_GRAVITY_POW;
+	float gravityPow = Ground::DEFAULT_GRAVITY_POW;
 
 	float checkPow = 10.0f;
 	gravHitPosUp_ = VAdd(movedPos_, VScale(dirUpGravity, gravityPow));

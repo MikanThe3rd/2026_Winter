@@ -6,6 +6,7 @@
 #include "../Common/Collider.h"
 #include "EnemyBase.h"
 #include "Knight.h"
+#include"Sister.h"
 #include "EnemyManager.h"
 
 namespace
@@ -145,6 +146,11 @@ std::unique_ptr<EnemyBase> EnemyManager::Create(const std::string& type)
 	if (type == "Knight")
 	{
 		return std::make_unique<Knight>();
+	}
+
+	if (type == "Sister")
+	{
+		return std::make_unique<Sister>();
 	}
 	return nullptr;
 }

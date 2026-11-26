@@ -14,12 +14,10 @@
 #include "../Object/Common/Collider.h"
 #include "../Object/SkyDome.h"
 #include "../Object/Stage/Stage.h"
-#include "../Object/Stage/Planet.h"
 #include "../Object/Player.h"
 #include "../Object/Weapon/WeaponBase.h"
 #include "../Object/Weapon/WeaponManager.h"
 #include "../Object/Enemy/EnemyBase.h"
-#include "../Object/Enemy/EnemyWeapon/EnemySword.h"
 #include "../Object/Enemy/EnemyManager.h"
 #include "GameScene.h"
 
@@ -79,7 +77,12 @@ void GameScene::Init(void)
 	// 敵をステージに登録
 	stage_->SetEnemyManager(enemyManager_.get());
 
-	stage_->ChangeStage(Stage::NAME::FOREST);
+	Stage::NAME stageName = Stage::NAME::CITY;
+	if (run.IsRunning() && run.HasCurrentNode())
+	{
+		stageName = run.GetStageName();
+	}
+	stage_->ChangeStage(stageName);
 
 	// スカイドーム
 	skyDome_ = std::make_unique<SkyDome>(player_->GetTransform());
@@ -181,8 +184,6 @@ void GameScene::Draw(void)
 
 	// 描画に使用するシャドウマップの設定を解除
 	SetUseShadowMap(0, -1);
-
-	TestDrawShadowMap(shadowMapHandle_, 0, 0, 256, 256);
 }
 
 void GameScene::CollisionWeaponEnemy(void)
@@ -230,18 +231,14 @@ void GameScene::CollisionWeaponEnemy(void)
 
 void GameScene::CollisionEnemyWeaponPlayer(void)
 {
-	if (!player_->IsAlive())
-	{
-		return;
-	}
-
-	//特殊攻撃中は攻撃に当たらない
-	if (player_->IsSpecialAttacking())
+	if (!player_->IsAlive() || player_->IsSpecialAttacking())
 	{
 		return;
 	}
 
 	const Capsule& pc = player_->GetCapsule();
+	RunManager& run = RunManager::GetInstance();
+	const int bonus = run.IsRunning() ? run.GetEnemyDamageBonus() : 0;
 
 	for (const auto& e : enemyManager_->GetEnemies())
 	{
@@ -250,24 +247,10 @@ void GameScene::CollisionEnemyWeaponPlayer(void)
 			continue;
 		}
 
-		// 武器なしの敵、または判定が出ていない間はスキップ
-		EnemySword* w = e->GetWeapon();
-		if (w == nullptr || !w->IsHitActive())
+		int dmg = e->CheckAttackHit(pc);
+		if (dmg > 0)
 		{
-			continue;
-		}
-
-		int hit = HitCheck_Capsule_Capsule(
-			w->GetPosTop(), w->GetPosDown(), w->GetRadius(),
-			pc.GetPosTop(), pc.GetPosDown(), pc.GetRadius());
-
-		if (hit)
-		{
-			// 階層に応じた敵の与ダメージ加算
-			RunManager& run = RunManager::GetInstance();
-			const int bonus = run.IsRunning() ? run.GetEnemyDamageBonus() : 0;
-			player_->Damage(w->GetData().damage + bonus);
-			w->MarkHit();   // この一振りでは二度当たらない
+			player_->Damage(dmg + bonus);
 		}
 	}
 }

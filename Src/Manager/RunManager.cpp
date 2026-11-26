@@ -333,3 +333,24 @@ int RunManager::GetEnemyDamageBonus(void) const
 	// 4階層ごとに +1
 	return (std::max)(0, currentFloor_) / 4;
 }
+
+Stage::NAME RunManager::GetStageName(void) const
+{
+	if (!HasCurrentNode())
+	{
+		return Stage::NAME::CITY;
+	}
+
+	// ボス
+	if (IsBossNode())
+	{
+		return Stage::NAME::CHAPEL;
+	}
+
+	// 前半 / 後半(FLOOR_NUM の半分で分ける)
+	if (currentFloor_ < FLOOR_NUM / 2)
+	{
+		return Stage::NAME::FOREST;
+	}
+	return Stage::NAME::CITY;
+}

@@ -8,7 +8,7 @@
 #include "Common/AnimationController.h"
 #include "Common/Capsule.h"
 #include "Common/Collider.h"
-#include "Stage/Planet.h"
+#include"Stage/Ground.h"
 #include "Player.h"
 
 Player::Player(void)
@@ -83,9 +83,6 @@ void Player::Init(void)
 	capsule_->SetLocalPosTop({ 0.0f, 160.0f, 0.0f });
 	capsule_->SetLocalPosDown({ 0.0f, 30.0f, 0.0f });
 	capsule_->SetRadius(20.0f);
-
-	// ä€âeâÊëú
-	imgShadow_ = resMng_.Load(ResourceManager::SRC::PLAYER_SHADOW).handleId_;
 
 	// èâä˙èÛë‘
 	ChangeState(STATE::PLAY);
@@ -589,7 +586,7 @@ void Player::CollisionGravity(void)
 	VECTOR dirUpGravity = AsoUtility::DIR_U;
 
 	// èdóÕÇÃã≠Ç≥
-	float gravityPow = Planet::DEFAULT_GRAVITY_POW;
+	float gravityPow = Ground::DEFAULT_GRAVITY_POW;
 
 	float checkPow = 10.0f;
 	gravHitPosUp_ = VAdd(movedPos_, VScale(dirUpGravity, gravityPow));
@@ -670,7 +667,7 @@ void Player::CalcGravityPow(void)
 	VECTOR dirGravity = AsoUtility::DIR_D;
 
 	// èdóÕÇÃã≠Ç≥
-	float gravityPow = Planet::DEFAULT_GRAVITY_POW;
+	float gravityPow = Ground::DEFAULT_GRAVITY_POW;
 
 	// èdóÕ
 	VECTOR gravity = VScale(dirGravity, gravityPow);

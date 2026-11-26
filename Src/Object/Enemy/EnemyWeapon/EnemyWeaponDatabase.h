@@ -1,36 +1,17 @@
 #pragma once
-#include <map>
+#include <memory>
 #include <string>
+#include "EnemyAttackBase.h"
 #include "EnemySword.h"
+#include "EnemyMagic.h"
 
-// 武器名 → 武器データ(簡易版。増えてきたら CSV 読み込みに切り替える)
-// 各値は WeaponData の宣言順:
-//  modelPath, handFrameName, localPos, localRot, scale,
-//  damage, range, cooldownFrames, attackFrames,
-//  hitStartFrame, hitEndFrame, hitLength, hitRadius
-inline const WeaponData* FindWeaponData(const std::string& name)
-{
-	static const std::map<std::string, WeaponData> table =
-	{
-		{ "Sword",
-			{
-				"Data/Model/Weapon/Sword.mv1",   
-				"mixamorig:RightHand",           
-				{ 0.0f, 0.0f, 0.0f },
-				{ 0.0f, 0.0f, 0.0f },
-				1.0f,
-				1,        // damage
-				120.0f,   // range
-				90,       // cooldownFrames
-				180,       // attackFrames
-				40,       // hitStartFrame
-				180,       // hitEndFrame
-				100.0f,   // hitLength
-				25.0f     // hitRadius
-			}
-		},
-	};
+// 攻撃名 → 攻撃データ(CSV から読み込む)
+// 初回アクセス時に自動で読み込まれる。見つからなければ nullptr を返す
+//   近接武器: Data/CSV/EnemyWeapon.csv
+//   魔法    : Data/CSV/EnemyMagic.csv
+const WeaponData* FindWeaponData(const std::string& name);
+const MagicData* FindMagicData(const std::string& name);
 
-	auto it = table.find(name);
-	return it == table.end() ? nullptr : &it->second;
-}
+// 攻撃名から攻撃クラスを生成する(見つからなければ nullptr)
+// 新しい種類の攻撃クラスを作ったら、EnemyWeaponDatabase.cpp の中に1行足す
+std::unique_ptr<EnemyAttackBase> CreateAttack(const std::string& name, int ownerModelId);

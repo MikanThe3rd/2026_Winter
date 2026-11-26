@@ -6,13 +6,13 @@
 #include <functional>
 #include <DxLib.h>
 #include "../Common/Transform.h"
+#include "EnemyWeapon/EnemyAttackBase.h" 
 #include "EnemySpawnData.h"
 
 class ResourceManager;
 class Collider;
 class Capsule;
 class AnimationController;
-class EnemySword;
 
 class EnemyBase
 {
@@ -101,7 +101,7 @@ public:
 
 	// 武器の有無・取得(武器なしなら nullptr)
 	bool HasWeapon(void) const { return weapon_ != nullptr; }
-	EnemySword* GetWeapon(void) { return weapon_.get(); }
+	int CheckAttackHit(const Capsule& player);   // 当たっていればダメージ量、なければ 0
 
 	//重なった場合の押しだし
 	void AddPos(const VECTOR& v);
@@ -127,7 +127,7 @@ protected:
 	std::unique_ptr<AnimationController> animationController_;
 
 	// 武器
-	std::unique_ptr<EnemySword> weapon_;
+	std::unique_ptr<EnemyAttackBase> weapon_;
 
 	// 状態管理
 	STATE state_;

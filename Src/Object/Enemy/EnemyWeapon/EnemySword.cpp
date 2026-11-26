@@ -1,5 +1,6 @@
-#include<string>
+#include <string>
 #include "../../../Utility/AsoUtility.h"
+#include "../../Common/Capsule.h"
 #include "EnemySword.h"
 
 EnemySword::EnemySword(const WeaponData& data, int ownerModelId)
@@ -25,7 +26,6 @@ EnemySword::EnemySword(const WeaponData& data, int ownerModelId)
 	{
 		OutputDebugStringA(("[EnemyWeapon] フレームが見つかりません: " + data_.handFrameName + "\n").c_str());
 
-		// 敵モデルが持つフレーム名を全部出す(手のフレーム名を探すため)
 		int num = MV1GetFrameNum(ownerModelId_);
 		for (int i = 0; i < num; i++)
 		{
@@ -42,7 +42,7 @@ EnemySword::~EnemySword(void)
 	}
 }
 
-void EnemySword::Update(void)
+void EnemySword::Update(const Context& /*ctx*/)
 {
 	if (cooldownTimer_ > 0) { cooldownTimer_--; }
 	if (attackTimer_ > 0) { attackTimer_--; }
@@ -68,7 +68,7 @@ void EnemySword::Update(void)
 		handRot.m[i][2] = row.z;
 	}
 
-	// オフセット回転(度 → ラジアン。順序は従来どおり X→Y→Z)
+	// オフセット回転(度 → ラジアン。順序は X→Y→Z)
 	MATRIX offsetRot = MGetRotX(AsoUtility::Deg2RadF(data_.localRot.x));
 	offsetRot = MMult(offsetRot, MGetRotY(AsoUtility::Deg2RadF(data_.localRot.y)));
 	offsetRot = MMult(offsetRot, MGetRotZ(AsoUtility::Deg2RadF(data_.localRot.z)));
@@ -84,7 +84,7 @@ void EnemySword::Update(void)
 	world.m[3][2] = finalPos.z;
 	MV1SetMatrix(modelId_, world);
 
-	// 判定カプセル(以下は従来どおり)
+	// 判定カプセル
 	posDown_ = VTransform(VGet(0.0f, 0.0f, 0.0f), world);
 	posTop_ = VTransform(VGet(0.0f, data_.hitLength, 0.0f), world);
 }
@@ -112,6 +112,26 @@ void EnemySword::StartAttack(void)
 	attackTimer_ = data_.attackFrames;
 	cooldownTimer_ = data_.cooldownFrames;
 	hasHit_ = false;    // 新しい一振りなので当たり済みをリセット
+}
+
+int EnemySword::CheckHitPlayer(const Capsule& player)
+{
+	if (!IsHitActive())
+	{
+		return 0;
+	}
+
+	int hit = HitCheck_Capsule_Capsule(
+		posTop_, posDown_, data_.hitRadius,
+		player.GetPosTop(), player.GetPosDown(), player.GetRadius());
+
+	if (!hit)
+	{
+		return 0;
+	}
+
+	hasHit_ = true;     // この一振りでは二度当たらない
+	return data_.damage;
 }
 
 bool EnemySword::IsHitActive(void) const

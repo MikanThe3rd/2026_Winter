@@ -19,6 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Object\Enemy\Priest.cpp" />
+    <ClCompile Include="Src\Object\Enemy\EnemyWeapon\EnemyMagic.cpp" />
+    <ClCompile Include="Src\Object\Enemy\EnemyWeapon\EnemyAttackBase.cpp" />
+    <ClCompile Include="Src\Object\Enemy\EnemyWeapon\EnemyWeaponDataBase.cpp" />
     <ClCompile Include="Src\Object\Enemy\Sister.cpp" />
     <ClCompile Include="Src\Object\Stage\Ground.cpp" />
     <ClCompile Include="Src\Scene\RewardScene.cpp" />
@@ -57,7 +61,6 @@
     <ClCompile Include="Src\Object\Common\Capsule.cpp" />
     <ClCompile Include="Src\Object\Common\Collider.cpp" />
     <ClCompile Include="Src\Object\Common\Transform.cpp" />
-    <ClCompile Include="Src\Object\Stage\Planet.cpp" />
     <ClCompile Include="Src\Object\Player.cpp" />
     <ClCompile Include="Src\Object\SkyDome.cpp" />
     <ClCompile Include="Src\Object\Stage\Stage.cpp" />
@@ -70,6 +73,9 @@
     <ClCompile Include="Src\Object\Weapon\WeaponManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Object\Enemy\Priest.h" />
+    <ClInclude Include="Src\Object\Enemy\EnemyWeapon\EnemyMagic.h" />
+    <ClInclude Include="Src\Object\Enemy\EnemyWeapon\EnemyAttackBase.h" />
     <ClInclude Include="Src\Object\Enemy\Sister.h" />
     <ClInclude Include="Src\Object\Stage\Ground.h" />
     <ClInclude Include="Src\Scene\RewardScene.h" />
@@ -80,7 +86,7 @@
     <ClInclude Include="Src\Scene\GameOverScene.h" />
     <ClInclude Include="Src\Scene\GameClearScene.h" />
     <ClInclude Include="Src\Object\Weapon\Claw.h" />
-    <ClInclude Include="Src\Object\Enemy\EnemyWeapon\EnemyWeaponDatabase.h" />
+    <ClInclude Include="Src\Object\Enemy\EnemyWeapon\EnemyWeaponDataBase.h" />
     <ClInclude Include="Src\Object\Enemy\EnemyWeapon\EnemySword.h" />
     <ClInclude Include="Src\Object\PlayerParam.h" />
     <ClInclude Include="Src\Object\Weapon\WeaponDatabase.h" />
@@ -110,7 +116,6 @@
     <ClInclude Include="Src\Object\Common\Capsule.h" />
     <ClInclude Include="Src\Object\Common\Collider.h" />
     <ClInclude Include="Src\Object\Common\Transform.h" />
-    <ClInclude Include="Src\Object\Stage\Planet.h" />
     <ClInclude Include="Src\Object\Player.h" />
     <ClInclude Include="Src\Object\SkyDome.h" />
     <ClInclude Include="Src\Object\Stage\Stage.h" />
@@ -195,6 +200,7 @@
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
+    <EnableASAN>true</EnableASAN>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">

@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <DxLib.h>
+#include "EnemyAttackBase.h"
 
 // 武器1種類分の性能・見た目・判定の設定
 struct WeaponData
@@ -20,37 +21,30 @@ struct WeaponData
 	float  hitRadius;           // 判定の半径(ワールド単位)
 };
 
-class EnemySword
+class EnemySword : public EnemyAttackBase
 {
 public:
 
 	EnemySword(const WeaponData& data, int ownerModelId);
-	~EnemySword(void);
+	~EnemySword(void) override;
 
-	// アニメーション更新後に呼ぶこと(手のフレーム位置を使うため)
-	void Update(void);
-	void Draw(void);
+	void Update(const Context& ctx) override;
+	void Draw(void) override;
 
-	// 攻撃を開始できるか(dist は敵とプレイヤーの水平距離)
-	bool CanAttack(float dist) const;
-	void StartAttack(void);
-	bool IsAttacking(void) const { return attackTimer_ > 0; }
-	bool IsAttackEnd(void) const { return attackTimer_ <= 0; }
+	bool CanAttack(float dist) const override;
+	void StartAttack(void) override;
+	void EndAttack(void) override { attackTimer_ = 0; }
+	bool IsAttacking(void) const override { return attackTimer_ > 0; }
 
-	// 判定が有効か(攻撃中・判定期間内・今回の一振りで未ヒット)
-	bool IsHitActive(void) const;
-	void MarkHit(void) { hasHit_ = true; }
-
-	// 判定カプセル(ワールド座標)
-	const VECTOR& GetPosTop(void) const { return posTop_; }
-	const VECTOR& GetPosDown(void) const { return posDown_; }
-	float GetRadius(void) const { return data_.hitRadius; }
+	// 当たっていれば damage を返し、この一振りでは二度当たらないようにする
+	int CheckHitPlayer(const Capsule& player) override;
 
 	const WeaponData& GetData(void) const { return data_; }
 
-	void EndAttack(void) { attackTimer_ = 0; }
-
 private:
+
+	// 判定が有効か(攻撃中・判定期間内・今回の一振りで未ヒット)
+	bool IsHitActive(void) const;
 
 	WeaponData data_;
 	int ownerModelId_;

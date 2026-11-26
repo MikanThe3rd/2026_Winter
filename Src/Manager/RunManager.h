@@ -3,6 +3,7 @@
 #include <string>
 #include <random>
 #include "../Object/Weapon/WeaponManager.h"
+#include "../Object/Stage/Stage.h"
 
 class Player;
 
@@ -121,6 +122,9 @@ public:
 	float GetEnemyHpRate(void) const;
 	float GetEnemySpeedRate(void) const;
 	int GetEnemyDamageBonus(void) const;
+
+	// ---- ステージ ----
+	Stage::NAME GetStageName(void) const;
 
 	// 乱数 [0, n)
 	int Random(int n);
